@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Anime, LibraryCategory } from '../../types'
 import { STATUS_MAP } from '../../types'
 
@@ -16,10 +16,45 @@ export function MediaCard({
   isLight?: boolean
 }) {
   const [err, setErr] = useState(false)
+  const [isLoaded, setIsLoaded] = useState(false)
+  const [isInView, setIsInView] = useState(false)
+  const posterContainerRef = useRef<HTMLDivElement>(null)
+
   const status = STATUS_MAP[anime.status]
   const catConfig = categories?.find(c => c.id === anime.category)
   const isMovie = catConfig ? catConfig.type === 'movies' : (anime.category === 'movies' || Boolean(anime.parts))
   const hasCover = Boolean(anime.cover && anime.cover.trim() && !err)
+
+  // Lazy-load: Only mount and fetch image when approaching viewport (250px buffer)
+  useEffect(() => {
+    if (!hasCover) return
+
+    if (!('IntersectionObserver' in window)) {
+      setIsInView(true)
+      return
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) {
+          setIsInView(true)
+          observer.disconnect()
+        }
+      },
+      {
+        rootMargin: '250px 0px',
+        threshold: 0.01,
+      }
+    )
+
+    if (posterContainerRef.current) {
+      observer.observe(posterContainerRef.current)
+    }
+
+    return () => {
+      observer.disconnect()
+    }
+  }, [hasCover, anime.cover])
 
   return (
     <div
@@ -29,6 +64,7 @@ export function MediaCard({
     >
       {/* Poster */}
       <div
+        ref={posterContainerRef}
         className={`relative aspect-[2/3] overflow-hidden border transition-colors duration-300 ${
           isLight
             ? 'bg-zinc-100 border-zinc-200 group-hover:border-zinc-400 shadow-xs'
@@ -36,12 +72,39 @@ export function MediaCard({
         }`}
       >
         {hasCover ? (
-          <img
-            src={anime.cover}
-            alt={anime.title}
-            onError={() => setErr(true)}
-            className="w-full h-full object-cover"
-          />
+          <>
+            {/* Shimmer placeholder while off-screen or downloading */}
+            {!isLoaded && (
+              <div
+                className={`absolute inset-0 flex items-center justify-center pointer-events-none ${
+                  isLight ? 'bg-zinc-100' : 'bg-zinc-950'
+                }`}
+              >
+                <div
+                  className={`w-9 h-9 border flex items-center justify-center opacity-30 animate-pulse ${
+                    isLight ? 'border-zinc-300 bg-zinc-200' : 'border-zinc-800 bg-zinc-900'
+                  }`}
+                >
+                  <div className={`w-2.5 h-2.5 ${isLight ? 'bg-zinc-400' : 'bg-zinc-700'}`} />
+                </div>
+              </div>
+            )}
+
+            {/* Poster image: only fetches network resource when within viewport proximity */}
+            {isInView && (
+              <img
+                src={anime.cover}
+                alt={anime.title}
+                loading="lazy"
+                decoding="async"
+                onLoad={() => setIsLoaded(true)}
+                onError={() => setErr(true)}
+                className={`w-full h-full object-cover transition-opacity duration-300 ${
+                  isLoaded ? 'opacity-100' : 'opacity-0'
+                }`}
+              />
+            )}
+          </>
         ) : (
           <div className={`w-full h-full flex items-center justify-center p-3.5 sm:p-4 select-none relative overflow-hidden transition-colors ${
             isLight

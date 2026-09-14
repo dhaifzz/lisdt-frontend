@@ -1,3 +1,4 @@
+import { useState, useEffect, useRef } from 'react'
 import { FilterStatus, SortOption } from '../../types'
 
 interface ControlsProps {
@@ -14,6 +15,60 @@ interface ControlsProps {
 export function Controls({
   filter, setFilter, sort, setSort, search, setSearch, categoryLabel, isLight = false,
 }: ControlsProps) {
+  const [localSearch, setLocalSearch] = useState(search)
+  const [isDebouncing, setIsDebouncing] = useState(false)
+  const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  // Keep local search in sync with external changes (e.g. category switch or reset)
+  useEffect(() => {
+    setLocalSearch(search)
+    setIsDebouncing(false)
+  }, [search])
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value
+    setLocalSearch(val)
+    setIsDebouncing(true)
+
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current)
+    }
+
+    debounceTimerRef.current = setTimeout(() => {
+      setSearch(val)
+      setIsDebouncing(false)
+    }, 400) // 400ms debounce (within 300–500 ms)
+  }
+
+  const handleClear = () => {
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current)
+    }
+    setLocalSearch('')
+    setSearch('')
+    setIsDebouncing(false)
+  }
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current)
+      }
+      setSearch(localSearch)
+      setIsDebouncing(false)
+    } else if (e.key === 'Escape') {
+      handleClear()
+    }
+  }
+
+  useEffect(() => {
+    return () => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current)
+      }
+    }
+  }, [])
+
   const tabs: { v: FilterStatus; label: string }[] = [
     { v: 'all',      label: 'ALL' },
     { v: 'watching', label: 'WATCHING' },
@@ -58,14 +113,33 @@ export function Controls({
             id="search-input"
             type="text"
             placeholder={`search ${categoryLabel.toLowerCase()}...`}
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-            className={`w-full sm:w-44 focus:sm:w-56 font-mono text-xs border pl-6 pr-3 py-2 outline-none transition-all ${
+            value={localSearch}
+            onChange={handleChange}
+            onKeyDown={handleKeyDown}
+            className={`w-full sm:w-44 focus:sm:w-56 font-mono text-xs border pl-6 pr-8 py-2 outline-none transition-all ${
               isLight
                 ? 'bg-white border-zinc-300 focus:border-zinc-600 text-zinc-900 placeholder-zinc-400 shadow-xs'
                 : 'bg-transparent border-zinc-900 focus:border-zinc-700 text-white placeholder-zinc-700'
             }`}
           />
+          {localSearch && (
+            <button
+              type="button"
+              onClick={handleClear}
+              title="Clear search"
+              className={`absolute right-2.5 top-1/2 -translate-y-1/2 font-mono text-[11px] px-1 py-0.5 cursor-pointer transition-colors ${
+                isLight
+                  ? 'text-zinc-400 hover:text-zinc-800'
+                  : 'text-zinc-600 hover:text-zinc-300'
+              }`}
+            >
+              {isDebouncing ? (
+                <span className="animate-spin inline-block text-[10px] leading-none">◴</span>
+              ) : (
+                <span className="leading-none text-xs font-bold">×</span>
+              )}
+            </button>
+          )}
         </div>
         <select
           id="sort-select"
