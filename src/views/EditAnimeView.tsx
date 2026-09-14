@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom'
 import { Anime, STATUS_MAP, CATEGORIES, MediaCategory, LibraryCategory } from '../types'
 import { toast } from '../context/ToastContext'
 import { useTheme } from '../context/ThemeContext'
-import { uploadApi } from '../lib/api'
+import { uploadApi, isValidCoverUrl } from '../lib/api'
 
 interface EditAnimeViewProps {
   anime: Anime
@@ -254,7 +254,7 @@ export default function EditAnimeView({
             <div className={`relative w-52 sm:w-64 aspect-[2/3] overflow-hidden border shadow-2xl transition-colors ${
               isLight ? 'bg-zinc-100 border-zinc-300' : 'bg-zinc-900 border-zinc-800'
             }`}>
-              {!coverErr && cover && cover.trim() ? (
+              {!coverErr && isValidCoverUrl(cover) ? (
                 <img
                   src={cover}
                   alt={title}

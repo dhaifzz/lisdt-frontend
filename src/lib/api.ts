@@ -20,6 +20,18 @@ export const removeToken = () => {
   try { localStorage.removeItem('lisdt_token') } catch {}
 }
 
+// --- Image Helpers -----------------------------------------------------------
+
+export const isValidCoverUrl = (url?: string | null): boolean => {
+  if (!url || !url.trim()) return false
+  if (typeof window !== 'undefined' && window.location.protocol === 'https:') {
+    if (url.startsWith('http://localhost') || url.startsWith('http://127.0.0.1')) {
+      return false
+    }
+  }
+  return true
+}
+
 // --- Core Fetch Wrapper ------------------------------------------------------
 
 async function apiFetch<T>(

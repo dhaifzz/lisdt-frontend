@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { Anime, LibraryCategory } from '../../types'
 import { STATUS_MAP } from '../../types'
+import { isValidCoverUrl } from '../../lib/api'
 
 export function MediaCard({
   anime,
@@ -23,7 +24,7 @@ export function MediaCard({
   const status = STATUS_MAP[anime.status]
   const catConfig = categories?.find(c => c.id === anime.category)
   const isMovie = catConfig ? catConfig.type === 'movies' : (anime.category === 'movies' || Boolean(anime.parts))
-  const hasCover = Boolean(anime.cover && anime.cover.trim() && !err)
+  const hasCover = Boolean(isValidCoverUrl(anime.cover) && !err)
 
   // Lazy-load: Only mount and fetch image when approaching viewport (250px buffer)
   useEffect(() => {

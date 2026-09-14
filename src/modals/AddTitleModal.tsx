@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from 'react'
 import { Anime, MediaCategory, CATEGORIES, STATUS_MAP } from '../types'
 import { useTheme } from '../context/ThemeContext'
 import { toast } from '../context/ToastContext'
-import { uploadApi } from '../lib/api'
+import { uploadApi, isValidCoverUrl } from '../lib/api'
 
 interface AddTitleModalProps {
   isOpen: boolean
@@ -278,7 +278,7 @@ export default function AddTitleModal({
                   ? 'bg-zinc-100 border-zinc-300 shadow-[0_4px_16px_rgba(0,0,0,0.12)]'
                   : 'bg-zinc-900 border-zinc-800 shadow-[0_4px_24px_rgba(0,0,0,0.6)]'
               }`}>
-                {cover.trim() && !coverErr ? (
+                {isValidCoverUrl(cover) && !coverErr ? (
                   <img
                     src={cover}
                     alt={title || 'Preview'}
