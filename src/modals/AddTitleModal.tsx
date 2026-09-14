@@ -161,14 +161,14 @@ export default function AddTitleModal({
   ]
 
   return (
-    <div className={`fixed inset-0 z-50 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 overflow-hidden fade-in ${
+    <div className={`fixed inset-0 z-50 backdrop-blur-sm flex items-center justify-center p-2 sm:p-6 overflow-y-auto fade-in ${
       isLight ? 'bg-black/40' : 'bg-black/85'
     }`}>
       {/* Backdrop click dismiss */}
       <div className="fixed inset-0" onClick={onClose} />
 
       {/* Modal Dialog Container */}
-      <div className={`relative w-full max-w-2xl max-h-[90vh] flex flex-col border p-5 sm:p-7 z-10 my-auto transition-colors duration-200 ${
+      <div className={`relative w-full max-w-2xl max-h-[92dvh] sm:max-h-[90vh] flex flex-col border p-3.5 sm:p-7 z-10 my-auto transition-colors duration-200 overflow-hidden ${
         isLight
           ? 'bg-white border-zinc-300 shadow-2xl text-zinc-900'
           : 'bg-[#090909] border-zinc-800 shadow-[0_0_50px_rgba(0,0,0,0.9)] text-white'
@@ -395,7 +395,7 @@ export default function AddTitleModal({
                 </div>
 
                 {/* Number Picker Grid */}
-                <div className="grid grid-cols-10 gap-1 sm:gap-1.5 w-full">
+                <div className="grid grid-cols-10 gap-0.5 sm:gap-1.5 w-full">
                   {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(num => {
                     const isSelected = rating === num.toString()
                     return (
@@ -608,46 +608,48 @@ export default function AddTitleModal({
                         {moviesCount > 0 ? `${moviesCount} MOVIE${moviesCount > 1 ? 'S' : ''}` : 'NO MOVIES'}
                       </span>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <button
-                        type="button"
-                        onClick={() => setMoviesCount(prev => Math.max(0, prev - 1))}
-                        className={`w-7 h-7 border font-mono text-xs flex items-center justify-center transition-colors cursor-pointer select-none ${
-                          isLight
-                            ? 'border-zinc-300 bg-white text-zinc-700 hover:text-black hover:border-zinc-500 shadow-xs'
-                            : 'border-zinc-800 bg-zinc-900 text-zinc-400 hover:text-white hover:border-zinc-600'
-                        }`}
-                      >
-                        -
-                      </button>
-                      <input
-                        type="text"
-                        inputMode="numeric"
-                        pattern="[0-9]*"
-                        value={moviesCount}
-                        onChange={e => {
-                          const val = e.target.value.replace(/\D/g, '')
-                          setMoviesCount(val === '' ? 0 : Math.min(50, parseInt(val, 10)))
-                        }}
-                        className={`w-12 text-center border-y font-mono text-xs h-7 outline-none ${
-                          isLight
-                            ? 'bg-white border-zinc-300 text-zinc-900'
-                            : 'bg-[#080808] border-zinc-800 text-white'
-                        }`}
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setMoviesCount(prev => prev + 1)}
-                        className={`w-7 h-7 border font-mono text-xs flex items-center justify-center transition-colors cursor-pointer select-none ${
-                          isLight
-                            ? 'border-zinc-300 bg-white text-zinc-700 hover:text-black hover:border-zinc-500 shadow-xs'
-                            : 'border-zinc-800 bg-zinc-900 text-zinc-400 hover:text-white hover:border-zinc-600'
-                        }`}
-                      >
-                        +
-                      </button>
-                      <span className={`font-mono text-[9px] ${isLight ? 'text-zinc-500' : 'text-zinc-600'}`}>
-                        {moviesCount === 0 ? 'Click + to add companion movies in this series' : 'Movies attached to series'}
+                    <div className="flex flex-wrap sm:flex-nowrap items-center gap-2">
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        <button
+                          type="button"
+                          onClick={() => setMoviesCount(prev => Math.max(0, prev - 1))}
+                          className={`w-7 h-7 border font-mono text-xs flex items-center justify-center transition-colors cursor-pointer select-none ${
+                            isLight
+                              ? 'border-zinc-300 bg-white text-zinc-700 hover:text-black hover:border-zinc-500 shadow-xs'
+                              : 'border-zinc-800 bg-zinc-900 text-zinc-400 hover:text-white hover:border-zinc-600'
+                          }`}
+                        >
+                          -
+                        </button>
+                        <input
+                          type="text"
+                          inputMode="numeric"
+                          pattern="[0-9]*"
+                          value={moviesCount}
+                          onChange={e => {
+                            const val = e.target.value.replace(/\D/g, '')
+                            setMoviesCount(val === '' ? 0 : Math.min(50, parseInt(val, 10)))
+                          }}
+                          className={`w-12 text-center border-y font-mono text-xs h-7 outline-none ${
+                            isLight
+                              ? 'bg-white border-zinc-300 text-zinc-900'
+                              : 'bg-[#080808] border-zinc-800 text-white'
+                          }`}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setMoviesCount(prev => prev + 1)}
+                          className={`w-7 h-7 border font-mono text-xs flex items-center justify-center transition-colors cursor-pointer select-none ${
+                            isLight
+                              ? 'border-zinc-300 bg-white text-zinc-700 hover:text-black hover:border-zinc-500 shadow-xs'
+                              : 'border-zinc-800 bg-zinc-900 text-zinc-400 hover:text-white hover:border-zinc-600'
+                          }`}
+                        >
+                          +
+                        </button>
+                      </div>
+                      <span className={`font-mono text-[9px] min-w-0 ${isLight ? 'text-zinc-500' : 'text-zinc-600'}`}>
+                        {moviesCount === 0 ? 'Click + to attach movies' : 'Movies attached to series'}
                       </span>
                     </div>
                   </div>
@@ -812,30 +814,30 @@ export default function AddTitleModal({
         </div>
 
         {/* Modal Footer: Pinned at bottom of modal */}
-        <div className={`shrink-0 pt-4 border-t flex items-center gap-2.5 mt-3 transition-colors ${
+        <div className={`shrink-0 pt-3 sm:pt-4 border-t flex flex-col-reverse sm:flex-row items-stretch sm:items-center gap-2 sm:gap-2.5 mt-2.5 sm:mt-3 transition-colors ${
           isLight ? 'border-zinc-200 bg-white' : 'border-zinc-900 bg-[#090909]'
         }`}>
           <button
-            type="submit"
-            form="add-title-form"
-            className={`font-mono text-xs font-bold px-5 py-2.5 transition-colors tracking-wider cursor-pointer shadow-sm ${
-              isLight
-                ? 'bg-zinc-900 hover:bg-black text-white'
-                : 'bg-white hover:bg-zinc-200 text-black'
-            }`}
-          >
-            + ADD_TO_LIBRARY
-          </button>
-          <button
             type="button"
             onClick={onClose}
-            className={`font-mono text-xs border px-4 py-2.5 transition-colors tracking-wider cursor-pointer ${
+            className={`font-mono text-xs border px-4 py-2 sm:py-2.5 transition-colors tracking-wider cursor-pointer text-center ${
               isLight
                 ? 'border-zinc-300 hover:border-zinc-500 text-zinc-700 hover:text-black bg-zinc-50'
                 : 'border-zinc-800 hover:border-zinc-600 text-zinc-400 hover:text-white'
             }`}
           >
             CANCEL
+          </button>
+          <button
+            type="submit"
+            form="add-title-form"
+            className={`font-mono text-xs font-bold px-4 sm:px-5 py-2.5 transition-colors tracking-wider cursor-pointer shadow-sm text-center ${
+              isLight
+                ? 'bg-zinc-900 hover:bg-black text-white'
+                : 'bg-white hover:bg-zinc-200 text-black'
+            }`}
+          >
+            + ADD_TO_LIBRARY
           </button>
         </div>
       </div>

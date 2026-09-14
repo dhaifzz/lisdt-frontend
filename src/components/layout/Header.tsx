@@ -68,13 +68,13 @@ export default function Header({
           : 'border-zinc-900 bg-[#080808]/95 text-white'
       }`}
     >
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 h-12 sm:h-14 flex items-center justify-between gap-3">
+      <div className="max-w-5xl mx-auto px-3 sm:px-6 h-12 sm:h-14 flex items-center justify-between gap-2 sm:gap-3">
         {/* Left: Logo & Nav Links */}
-        <div className="flex items-center gap-3 sm:gap-4 shrink-0">
+        <div className="flex items-center gap-2 sm:gap-4 shrink min-w-0">
           <a
             href="/"
             onClick={handleHome}
-            className="flex items-center gap-2 select-none cursor-pointer group no-underline"
+            className="flex items-center gap-1.5 sm:gap-2 select-none cursor-pointer group no-underline shrink-0"
             title="Lisdt Home"
           >
             <img src={logoSrc} alt="Lisdt Logo" className="w-5 h-5 object-contain transition-transform duration-200 group-hover:scale-105" />
@@ -90,12 +90,12 @@ export default function Header({
           <div className={`h-4 w-[1px] hidden xs:block ${isLight ? 'bg-zinc-200' : 'bg-zinc-900'}`} />
 
           {/* Quick Route Links */}
-          <nav className="flex items-center gap-1 font-mono text-xs">
+          <nav className="flex items-center gap-0.5 sm:gap-1 font-mono text-[11px] sm:text-xs">
             {!currentUser && (
               <a
                 href="/"
                 onClick={handleHome}
-                className={`px-2 py-1 transition-colors cursor-pointer ${
+                className={`px-1.5 sm:px-2 py-1 transition-colors cursor-pointer ${
                   activeRoute === 'landing'
                     ? isLight ? 'text-zinc-950 font-semibold' : 'text-white font-semibold'
                     : isLight ? 'text-zinc-500 hover:text-zinc-800' : 'text-zinc-500 hover:text-zinc-300'
@@ -110,7 +110,7 @@ export default function Header({
                   id="nav-library-link"
                   href="/library"
                   onClick={handleLibrary}
-                  className={`px-2 py-1 transition-colors cursor-pointer ${
+                  className={`px-1.5 sm:px-2 py-1 transition-colors cursor-pointer ${
                     activeRoute === 'library' || activeRoute === 'edit'
                       ? isLight ? 'text-zinc-950 font-semibold' : 'text-white font-semibold'
                       : isLight ? 'text-zinc-500 hover:text-zinc-800' : 'text-zinc-500 hover:text-zinc-300'
@@ -122,7 +122,7 @@ export default function Header({
                   id="nav-settings-link"
                   href="/settings"
                   onClick={handleSettings}
-                  className={`px-2 py-1 transition-colors cursor-pointer ${
+                  className={`px-1.5 sm:px-2 py-1 transition-colors cursor-pointer ${
                     activeRoute === 'settings'
                       ? isLight ? 'text-zinc-950 font-semibold' : 'text-white font-semibold'
                       : isLight ? 'text-zinc-500 hover:text-zinc-800' : 'text-zinc-500 hover:text-zinc-300'
@@ -136,14 +136,14 @@ export default function Header({
         </div>
 
         {/* Right: Theme Toggle & Auth / User Status */}
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
           {/* Quick Theme Toggle (Shown on Library & Settings pages) */}
           {(activeRoute === 'library' || activeRoute === 'settings') && (
             <button
               id="header-theme-toggle"
               type="button"
               onClick={toggleTheme}
-              className={`font-mono text-[11px] px-2 sm:px-2.5 py-1 transition-all flex items-center gap-1.5 cursor-pointer border select-none ${
+              className={`font-mono text-[11px] p-1.5 sm:px-2.5 sm:py-1 transition-all flex items-center gap-1.5 cursor-pointer border select-none ${
                 isLight
                   ? 'bg-zinc-100 hover:bg-zinc-200 text-zinc-800 border-zinc-300 shadow-xs'
                   : 'bg-zinc-950 hover:bg-zinc-900 text-zinc-400 hover:text-white border-zinc-800'
@@ -165,18 +165,19 @@ export default function Header({
           )}
 
           {currentUser ? (
-            <div className="flex items-center gap-2">
+            <div className="flex items-center">
               <button
                 id="nav-sign-out"
                 onClick={onSignOut}
-                className={`font-mono text-xs px-2 py-1.5 transition-colors cursor-pointer ${
+                className={`font-mono text-[11px] sm:text-xs px-1.5 sm:px-2 py-1 sm:py-1.5 transition-colors cursor-pointer whitespace-nowrap ${
                   isLight
                     ? 'text-zinc-500 hover:text-zinc-900'
-                    : 'text-zinc-600 hover:text-zinc-300'
+                    : 'text-zinc-500 hover:text-zinc-300'
                 }`}
                 title="Sign out"
               >
-                [ SIGN_OUT ]
+                <span className="hidden sm:inline">[ SIGN_OUT ]</span>
+                <span className="sm:hidden">[ EXIT ]</span>
               </button>
             </div>
           ) : (
@@ -185,7 +186,7 @@ export default function Header({
                 id="nav-sign-in"
                 href="/signin"
                 onClick={handleSignIn}
-                className="font-mono text-xs text-zinc-400 hover:text-white border border-zinc-900 hover:border-zinc-700 bg-zinc-950 px-2.5 sm:px-3 py-1.5 transition-colors cursor-pointer text-center no-underline inline-block"
+                className="font-mono text-[11px] sm:text-xs text-zinc-400 hover:text-white border border-zinc-900 hover:border-zinc-700 bg-zinc-950 px-2 sm:px-3 py-1 sm:py-1.5 transition-colors cursor-pointer text-center no-underline inline-block whitespace-nowrap"
               >
                 SIGN_IN
               </a>
@@ -193,7 +194,7 @@ export default function Header({
                 id="nav-create"
                 href="/signup"
                 onClick={handleSignUp}
-                className="font-mono text-xs border border-zinc-800 hover:border-zinc-600 text-zinc-400 hover:text-white px-2.5 sm:px-3 py-1.5 transition-colors hidden sm:inline-block cursor-pointer text-center no-underline"
+                className="font-mono text-[11px] sm:text-xs border border-zinc-800 hover:border-zinc-600 text-zinc-400 hover:text-white px-2 sm:px-3 py-1 sm:py-1.5 transition-colors hidden sm:inline-block cursor-pointer text-center no-underline whitespace-nowrap"
               >
                 CREATE_ACCOUNT
               </a>

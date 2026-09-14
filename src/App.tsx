@@ -618,7 +618,7 @@ export default function App() {
   const isLight = isLightActive
 
   return (
-    <div className={`min-h-screen transition-colors duration-200 ${isLight ? 'bg-[#f5f5f7] text-zinc-900' : 'bg-[#080808] text-white'}`}>
+    <div className={`min-h-screen w-full overflow-x-hidden transition-colors duration-200 ${isLight ? 'bg-[#f5f5f7] text-zinc-900' : 'bg-[#080808] text-white'}`}>
       <Header
         onNavigateHome={() => navigate('/')}
         onNavigateLibrary={() => navigate('/library')}
@@ -675,8 +675,8 @@ export default function App() {
         {/* Active List */}
         <div className={`border-t pt-6 ${isLight ? 'border-zinc-200' : 'border-zinc-900'}`}>
           <div className="flex items-center justify-between mb-4 gap-2">
-            <div className="flex items-center gap-2">
-              <p className={`font-mono text-[9px] tracking-widest ${isLight ? 'text-zinc-500' : 'text-zinc-700'}`}>
+            <div className="flex items-center gap-2 min-w-0">
+              <p className={`font-mono text-[9px] sm:text-[10px] tracking-widest truncate ${isLight ? 'text-zinc-500' : 'text-zinc-700'}`}>
                 ACTIVE LIST: {(currentCategoryConfig?.label ?? 'MY LIST')}
               </p>
               <span className={`font-mono text-[9px] hidden sm:inline ${isLight ? 'text-zinc-500' : 'text-zinc-600'}`}>
@@ -687,7 +687,7 @@ export default function App() {
             <button
               id="btn-open-add-modal"
               onClick={() => setIsAddModalOpen(true)}
-              className={`font-mono text-xs font-bold px-3.5 py-1.5 transition-all flex items-center gap-1.5 shadow-sm cursor-pointer ${
+              className={`font-mono text-xs font-bold px-3 py-1.5 transition-all flex items-center gap-1.5 shadow-sm cursor-pointer shrink-0 ${
                 isLight
                   ? 'bg-zinc-900 hover:bg-black text-white'
                   : 'bg-white hover:bg-zinc-200 text-black'
@@ -722,8 +722,8 @@ export default function App() {
                   <span>SYNCHRONIZING</span>
                 </div>
 
-                {/* Media Grid Skeleton */}
-                <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3 sm:gap-4">
+                {/* Media Grid Skeleton - 2 cols on mobile for bigger posters, 4-6 on larger screens */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3 sm:gap-4">
                   {Array.from({ length: 12 }).map((_, i) => (
                     <MediaCardSkeleton key={i} index={i} isLight={isLight} />
                   ))}
@@ -743,8 +743,8 @@ export default function App() {
                   <span>50 / PAGE · CLICK TO EDIT</span>
                 </div>
 
-                {/* Media Grid */}
-                <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3 sm:gap-4">
+                {/* Media Grid - 2 cols on mobile for bigger posters, 4-6 on larger screens */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3 sm:gap-4">
                   {paginatedList.map((anime, i) => (
                     <MediaCard
                       key={anime.id}

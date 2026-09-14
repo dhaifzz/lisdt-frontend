@@ -362,14 +362,14 @@ export default function AddLibraryModal({
   )
 
   return (
-    <div className={`fixed inset-0 z-50 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 overflow-hidden fade-in ${
+    <div className={`fixed inset-0 z-50 backdrop-blur-sm flex items-center justify-center p-2 sm:p-6 overflow-y-auto fade-in ${
       isLight ? 'bg-black/40' : 'bg-black/85'
     }`}>
       {/* Backdrop click dismiss */}
       <div className="fixed inset-0" onClick={onClose} />
 
       {/* Modal Dialog Container: constrained height, internally scrollable */}
-      <div className={`relative w-full ${mode === 'card' ? 'max-w-lg' : 'max-w-2xl'} max-h-[90vh] flex flex-col border p-4 sm:p-7 z-10 my-auto transition-colors duration-200 ${
+      <div className={`relative w-full ${mode === 'card' ? 'max-w-lg' : 'max-w-2xl'} max-h-[92dvh] sm:max-h-[90vh] flex flex-col border p-3.5 sm:p-7 z-10 my-auto transition-colors duration-200 overflow-hidden ${
         isLight
           ? 'bg-white border-zinc-300 shadow-2xl text-zinc-900'
           : 'bg-[#090909] border-zinc-800 shadow-[0_0_50px_rgba(0,0,0,0.9)] text-white'
