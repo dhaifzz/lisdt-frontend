@@ -28,6 +28,22 @@ export default function SignInView({
   const [isForgotLoading, setIsForgotLoading] = useState(false)
   const [forgotSuccess, setForgotSuccess] = useState(false)
 
+  // Prevent page-level scroll on mobile; only the card interior may scroll
+  useEffect(() => {
+    const origBodyOverflow = document.body.style.overflow
+    const origHtmlOverflow = document.documentElement.style.overflow
+    const origBodyTouch = document.body.style.touchAction
+    document.body.style.overflow = 'hidden'
+    document.documentElement.style.overflow = 'hidden'
+    document.body.style.touchAction = 'none'
+
+    return () => {
+      document.body.style.overflow = origBodyOverflow
+      document.documentElement.style.overflow = origHtmlOverflow
+      document.body.style.touchAction = origBodyTouch
+    }
+  }, [])
+
   useEffect(() => {
     if (cooldownRemaining <= 0) return
     const timer = setInterval(() => {
@@ -132,7 +148,7 @@ export default function SignInView({
   }
 
   return (
-    <div className="h-screen h-[100dvh] bg-[#080808] text-white flex flex-col justify-between overflow-hidden relative selection:bg-white selection:text-black">
+    <div className="fixed inset-0 w-full h-full bg-[#080808] text-white flex flex-col justify-between overflow-hidden select-none sm:select-auto overscroll-none touch-none selection:bg-white selection:text-black">
       {/* Background Ambient Details */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden select-none z-0">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-white/[0.012] rounded-full blur-3xl" />
@@ -174,8 +190,8 @@ export default function SignInView({
       </header>
 
       {/* Center Auth Area (Fixed to viewport height, outer page never scrolls) */}
-      <main className="flex-1 min-h-0 relative z-10 flex items-center justify-center p-3 sm:p-5 overflow-hidden">
-        <div className="w-full max-w-md max-h-[calc(100dvh-4.5rem)] sm:max-h-[calc(100dvh-5.5rem)] flex flex-col relative my-auto">
+      <main className="flex-1 min-h-0 relative z-10 flex items-center justify-center p-3 sm:p-5 overflow-hidden touch-none">
+        <div className="w-full max-w-md h-full max-h-full flex flex-col relative my-auto min-h-0">
           {/* Decorative Corner Tech Brackets */}
           <div className="absolute -top-1 -left-1 w-2.5 h-2.5 border-t-2 border-l-2 border-zinc-500 pointer-events-none z-20" />
           <div className="absolute -top-1 -right-1 w-2.5 h-2.5 border-t-2 border-r-2 border-zinc-500 pointer-events-none z-20" />
@@ -183,7 +199,7 @@ export default function SignInView({
           <div className="absolute -bottom-1 -right-1 w-2.5 h-2.5 border-b-2 border-r-2 border-zinc-500 pointer-events-none z-20" />
 
           {/* Terminal Window Frame */}
-          <div className="flex flex-col h-full max-h-full border border-zinc-800 bg-[#0c0c0c]/95 shadow-2xl backdrop-blur-sm overflow-hidden">
+          <div className="flex flex-col h-full max-h-full min-h-0 border border-zinc-800 bg-[#0c0c0c]/95 shadow-2xl backdrop-blur-sm overflow-hidden">
             {/* Terminal Window Header (Fixed inside card) */}
             <div className="shrink-0 flex items-center justify-between px-4 py-2.5 border-b border-zinc-900 bg-zinc-950 font-mono text-[10px]">
               <div className="flex items-center gap-2">
@@ -198,6 +214,7 @@ export default function SignInView({
             <div
               ref={cardScrollRef}
               className="flex-1 min-h-0 overflow-y-auto overscroll-contain scrollbar-thin"
+              style={{ WebkitOverflowScrolling: 'touch', touchAction: 'pan-y' }}
             >
               {isForgotPasswordMode ? (
                 <div className="p-6 sm:p-8 space-y-5">
