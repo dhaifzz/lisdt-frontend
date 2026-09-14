@@ -191,7 +191,7 @@ export default function SignInView({
 
       {/* Center Auth Area (Fixed to viewport height, outer page never scrolls) */}
       <main className="flex-1 min-h-0 relative z-10 flex items-center justify-center p-3 sm:p-5 overflow-hidden touch-none">
-        <div className="w-full max-w-md h-full max-h-full flex flex-col relative my-auto min-h-0">
+        <div className="w-full max-w-md max-h-full flex flex-col relative my-auto min-h-0">
           {/* Decorative Corner Tech Brackets */}
           <div className="absolute -top-1 -left-1 w-2.5 h-2.5 border-t-2 border-l-2 border-zinc-500 pointer-events-none z-20" />
           <div className="absolute -top-1 -right-1 w-2.5 h-2.5 border-t-2 border-r-2 border-zinc-500 pointer-events-none z-20" />
@@ -199,7 +199,7 @@ export default function SignInView({
           <div className="absolute -bottom-1 -right-1 w-2.5 h-2.5 border-b-2 border-r-2 border-zinc-500 pointer-events-none z-20" />
 
           {/* Terminal Window Frame */}
-          <div className="flex flex-col h-full max-h-full min-h-0 border border-zinc-800 bg-[#0c0c0c]/95 shadow-2xl backdrop-blur-sm overflow-hidden">
+          <div className="flex flex-col max-h-full min-h-0 border border-zinc-800 bg-[#0c0c0c]/95 shadow-2xl backdrop-blur-sm overflow-hidden">
             {/* Terminal Window Header (Fixed inside card) */}
             <div className="shrink-0 flex items-center justify-between px-4 py-2.5 border-b border-zinc-900 bg-zinc-950 font-mono text-[10px]">
               <div className="flex items-center gap-2">
