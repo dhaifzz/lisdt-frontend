@@ -1,8 +1,10 @@
 // --- API Base ----------------------------------------------------------------
 
-const BASE_URL =
-  import.meta.env.VITE_API_URL ||
-  (import.meta.env.DEV ? 'http://localhost:5000/api' : 'https://lisdt-backend.onrender.com/api')
+const rawApiUrl = (import.meta.env.VITE_API_URL || '').trim().replace(/\/+$/, '')
+
+const BASE_URL = rawApiUrl
+  ? (rawApiUrl.endsWith('/api') ? rawApiUrl : `${rawApiUrl}/api`)
+  : (import.meta.env.DEV ? 'http://localhost:5000/api' : 'https://lisdt.onrender.com/api')
 
 // --- Token Helpers -----------------------------------------------------------
 
