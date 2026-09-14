@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react'
 import { Anime, MediaCategory, CATEGORIES, STATUS_MAP } from '../types'
 import { useTheme } from '../context/ThemeContext'
+import { toast } from '../context/ToastContext'
 
 interface AddTitleModalProps {
   isOpen: boolean
@@ -98,14 +99,22 @@ export default function AddTitleModal({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    if (!title.trim()) return
+    const cleanTitle = title.trim()
+    if (!cleanTitle) {
+      toast.error('ERR: TITLE_REQUIRED')
+      return
+    }
+    if (cleanTitle.length > 80) {
+      toast.error('ERR: TITLE_EXCEEDS_80_CHARACTERS')
+      return
+    }
 
     const parsedRating = rating.trim() === '' ? null : Math.min(10, Math.max(1, Math.round(Number(rating)) || 1))
     const cleanedCover = cover.trim().includes('photo-1578632767115-351597cf2477') ? '' : cover.trim()
     const newItem: Anime = {
       id: Date.now(),
       category,
-      title: title.trim(),
+      title: cleanTitle,
       cover: cleanedCover,
       year: Number(year) || new Date().getFullYear(),
       seasonsFinished: isMovie ? 0 : Math.max(0, Number(seasonsFinished) || 0),
@@ -328,15 +337,23 @@ export default function AddTitleModal({
             <div className="space-y-4">
               {/* Title */}
               <div>
-                <label className={`block font-mono text-[9px] tracking-wider mb-1 ${isLight ? 'text-zinc-600' : 'text-zinc-500'}`}>
-                  {isMovie ? 'MOVIE_TITLE' : 'SERIES_TITLE'} *
-                </label>
+                <div className="flex items-center justify-between mb-1">
+                  <label className={`block font-mono text-[9px] tracking-wider ${isLight ? 'text-zinc-600' : 'text-zinc-500'}`}>
+                    {isMovie ? 'MOVIE_TITLE' : 'SERIES_TITLE'} *
+                  </label>
+                  <span className={`font-mono text-[9px] ${
+                    title.length > 70 ? 'text-amber-500 font-bold' : isLight ? 'text-zinc-400' : 'text-zinc-600'
+                  }`}>
+                    {title.length}/80
+                  </span>
+                </div>
                 <input
                   type="text"
                   value={title}
                   onChange={e => setTitle(e.target.value)}
+                  maxLength={80}
                   required
-                  placeholder={isMovie ? "e.g. Blade Runner 2049" : "e.g. Steins;Gate"}
+                  placeholder={isMovie ? "e.g. Blade Runner 2049 (max 80 chars)" : "e.g. Steins;Gate (max 80 chars)"}
                   className={`w-full font-medium text-xs sm:text-sm px-3 py-2 outline-none transition-colors border ${
                     isLight
                       ? 'bg-zinc-50 border-zinc-300 focus:border-zinc-800 text-zinc-900 placeholder-zinc-400'

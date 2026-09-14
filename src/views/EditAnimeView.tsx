@@ -105,12 +105,22 @@ export default function EditAnimeView({
 
   const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault()
+    const cleanTitle = title.trim()
+    if (!cleanTitle) {
+      toast.error('ERR: TITLE_REQUIRED')
+      return
+    }
+    if (cleanTitle.length > 80) {
+      toast.error('ERR: TITLE_EXCEEDS_80_CHARACTERS')
+      return
+    }
+
     const parsedRating = rating.trim() === '' ? null : Math.min(10, Math.max(1, Math.round(Number(rating)) || 1))
     const cleanedCover = cover.trim().includes('photo-1578632767115-351597cf2477') ? '' : cover.trim()
     const updated: Anime = {
       ...anime,
       category,
-      title: title.trim() || anime.title,
+      title: cleanTitle,
       cover: cleanedCover,
       seasonsFinished: isMovie ? 0 : Math.max(0, Number(seasonsFinished) || 0),
       parts: isMovie ? Math.max(1, Number(parts) || 1) : undefined,
@@ -342,22 +352,30 @@ export default function EditAnimeView({
 
             {/* Field: Series/Movie Name */}
             <div>
-              <label className={`block font-mono text-[10px] tracking-wider mb-2 ${
-                isLight ? 'text-zinc-600 font-medium' : 'text-zinc-500'
-              }`}>
-                TITLE
-              </label>
+              <div className="flex items-center justify-between mb-2">
+                <label className={`block font-mono text-[10px] tracking-wider ${
+                  isLight ? 'text-zinc-600 font-medium' : 'text-zinc-500'
+                }`}>
+                  TITLE *
+                </label>
+                <span className={`font-mono text-[10px] ${
+                  title.length > 70 ? 'text-amber-500 font-bold' : isLight ? 'text-zinc-400' : 'text-zinc-600'
+                }`}>
+                  {title.length}/80
+                </span>
+              </div>
               <input
                 type="text"
                 value={title}
                 onChange={e => setTitle(e.target.value)}
+                maxLength={80}
                 required
                 className={`w-full font-medium text-sm px-3.5 py-2.5 outline-none transition-colors border ${
                   isLight
                     ? 'bg-zinc-50 border-zinc-300 focus:border-zinc-950 text-zinc-950 placeholder:text-zinc-400'
                     : 'bg-[#080808] border-zinc-800 focus:border-white text-white'
                 }`}
-                placeholder="Enter title..."
+                placeholder="Enter title (max 80 chars)..."
               />
             </div>
 

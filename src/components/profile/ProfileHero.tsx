@@ -39,14 +39,15 @@ export function ProfileHero({
             <button
               id="btn-edit-current-library"
               onClick={onEditLibrary}
-              className={`font-mono text-[9px] px-1.5 py-0.5 transition-colors cursor-pointer border ${
+              className={`font-mono text-[10px] sm:text-xs font-semibold px-2 sm:px-2.5 py-0.5 sm:py-1 transition-colors cursor-pointer border flex items-center gap-1 ${
                 isLight
-                  ? 'border-zinc-300 text-zinc-600 hover:text-zinc-950 hover:border-zinc-500 bg-white shadow-xs'
-                  : 'border-zinc-900 hover:border-zinc-700 text-zinc-600 hover:text-white'
+                  ? 'border-zinc-300 text-zinc-700 hover:text-zinc-950 hover:border-zinc-500 bg-white shadow-xs'
+                  : 'border-zinc-800 hover:border-zinc-600 text-zinc-300 hover:text-white bg-zinc-950/60'
               }`}
               title="Edit library details"
             >
-              [ ✏ EDIT ]
+              <span className="text-[9px] sm:text-[10px]">✏</span>
+              <span>EDIT</span>
             </button>
           </div>
           <h1 className={`text-2xl sm:text-4xl font-bold tracking-tight leading-tight ${isLight ? 'text-zinc-950' : 'text-white'}`}>

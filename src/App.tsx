@@ -618,7 +618,7 @@ export default function App() {
   const isLight = isLightActive
 
   return (
-    <div className={`min-h-screen w-full overflow-x-hidden transition-colors duration-200 ${isLight ? 'bg-[#f5f5f7] text-zinc-900' : 'bg-[#080808] text-white'}`}>
+    <div className={`min-h-screen w-full transition-colors duration-200 ${isLight ? 'bg-[#f5f5f7] text-zinc-900' : 'bg-[#080808] text-white'}`}>
       <Header
         onNavigateHome={() => navigate('/')}
         onNavigateLibrary={() => navigate('/library')}

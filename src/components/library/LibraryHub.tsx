@@ -14,19 +14,22 @@ interface LibraryHubProps {
 export function LibraryCardSkeleton({ index = 0, isLight = false }: { index?: number; isLight?: boolean }) {
   return (
     <div
-      className={`text-left p-2.5 sm:p-3 border relative overflow-hidden shrink-0 w-[190px] sm:w-auto snap-start select-none animate-pulse ${
+      className={`text-left p-2.5 sm:p-3.5 border relative overflow-hidden shrink-0 w-[145px] sm:w-auto aspect-square sm:aspect-auto snap-start select-none animate-pulse flex flex-col justify-between ${
         isLight ? 'border-zinc-200 bg-zinc-100/70' : 'border-zinc-900 bg-zinc-950/40'
       }`}
       style={{ animationDelay: `${index * 120}ms` }}
     >
-      <div className="flex items-center justify-between gap-2">
+      <div className="flex items-center justify-between gap-1.5 w-full">
         <div className={`h-2.5 w-16 rounded ${isLight ? 'bg-zinc-200' : 'bg-zinc-900'}`} />
-        <div className={`h-2.5 w-6 rounded ${isLight ? 'bg-zinc-200' : 'bg-zinc-900'}`} />
+        <div className={`h-2.5 w-8 rounded ${isLight ? 'bg-zinc-200' : 'bg-zinc-900'}`} />
       </div>
 
-      <div className="mt-2 space-y-1">
+      <div className="my-auto py-1 space-y-2 w-full">
         <div className={`h-3.5 rounded w-3/4 ${isLight ? 'bg-zinc-200' : 'bg-zinc-855'}`} />
-        <div className={`h-2.5 rounded w-1/2 ${isLight ? 'bg-zinc-200' : 'bg-zinc-900'}`} />
+        <div className="flex items-center justify-between gap-2">
+          <div className={`h-2.5 rounded w-12 ${isLight ? 'bg-zinc-200' : 'bg-zinc-900'}`} />
+          <div className={`h-5 w-14 rounded ${isLight ? 'bg-zinc-200' : 'bg-zinc-900'}`} />
+        </div>
       </div>
 
       {/* Cybernetic shimmer sweep */}
@@ -80,7 +83,7 @@ export function LibraryHub({
         </div>
       </div>
 
-      {/* Cards: compact horizontal scroll on phone, grid on tablet+ */}
+      {/* Cards: square horizontal scroll on phone, grid on tablet+ */}
       <div className="-mx-4 px-4 sm:mx-0 sm:px-0 flex sm:grid sm:grid-cols-3 gap-2.5 sm:gap-3 overflow-x-auto sm:overflow-visible pb-2 sm:pb-0 scrollbar-none snap-x snap-mandatory">
         {isLoading ? (
           <>
@@ -109,28 +112,26 @@ export function LibraryHub({
           categories.map((cat) => {
             const isActive = activeCategory === cat.id
             const catItems = items.filter(a => a.category === cat.id)
-            const watchingCount = catItems.filter(a => a.status === 'watching').length
-            const watchedCount  = catItems.filter(a => a.status === 'watched').length
 
             return (
               <button
                 key={cat.id}
                 id={`hub-card-${cat.id}`}
                 onClick={() => onSelectCategory(cat.id)}
-                className={`text-left p-2.5 sm:p-3 border transition-all duration-150 cursor-pointer relative group overflow-hidden shrink-0 w-[190px] sm:w-auto snap-start flex flex-col justify-between ${
+                className={`text-left p-2.5 sm:p-3.5 border transition-all duration-150 cursor-pointer relative group overflow-hidden shrink-0 w-[145px] sm:w-auto aspect-square sm:aspect-auto snap-start flex flex-col justify-between ${
                   isActive
                     ? isLight
                       ? 'bg-white border-zinc-900 shadow-sm border-l-4 border-l-zinc-900'
-                      : 'bg-zinc-950 border-zinc-600 shadow-[0_0_15px_rgba(255,255,255,0.06)] border-l-4 border-l-white'
+                      : 'bg-zinc-950 border-zinc-500 shadow-[0_0_15px_rgba(255,255,255,0.06)] border-l-4 border-l-white'
                     : isLight
                     ? 'bg-white/70 border-zinc-200 hover:border-zinc-400 hover:bg-white text-zinc-800'
                     : 'bg-zinc-950/40 border-zinc-900 hover:border-zinc-700 hover:bg-zinc-900/40'
                 }`}
               >
-                {/* Header row: Tag/Type + Active Indicator + Edit Trigger */}
-                <div className="flex items-center justify-between gap-1.5 w-full">
-                  <div className="flex items-center gap-1.5 min-w-0">
-                    <span className={`font-mono text-[7px] sm:text-[8px] uppercase tracking-wider px-1 py-0.2 border truncate ${
+                {/* Header row: Tag/Type + Active Indicator */}
+                <div className="flex items-center justify-between gap-1 w-full">
+                  <div className="flex items-center gap-1 min-w-0">
+                    <span className={`font-mono text-[7.5px] sm:text-[8px] uppercase tracking-wider px-1 py-0.2 border truncate ${
                       isActive
                         ? isLight ? 'border-zinc-300 text-zinc-700 bg-zinc-100' : 'border-zinc-800 text-zinc-300 bg-zinc-900'
                         : isLight ? 'border-zinc-200 text-zinc-400' : 'border-zinc-900 text-zinc-600'
@@ -146,19 +147,37 @@ export function LibraryHub({
                     </span>
                   </div>
 
-                  <div className="flex items-center gap-1 shrink-0">
+                  <div className="flex items-center shrink-0">
                     {isActive ? (
-                      <span className="inline-flex items-center gap-1 font-mono text-[8px] font-bold text-emerald-600 dark:text-emerald-400">
+                      <span className="inline-flex items-center gap-1 font-mono text-[8px] sm:text-[9px] font-bold text-emerald-600 dark:text-emerald-400">
                         <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                         ACTIVE
                       </span>
                     ) : (
-                      <span className={`font-mono text-[8px] transition-colors ${
+                      <span className={`font-mono text-[8px] sm:text-[9px] transition-colors ${
                         isLight ? 'text-zinc-400 group-hover:text-zinc-800' : 'text-zinc-600 group-hover:text-zinc-300'
                       }`}>
                         &gt;&gt;
                       </span>
                     )}
+                  </div>
+                </div>
+
+                {/* Center / Content: Title and Count with EDIT button right near it, no divider line */}
+                <div className="my-auto py-1 min-w-0 w-full">
+                  <h2 className={`font-mono text-xs sm:text-sm font-bold tracking-tight truncate transition-colors ${
+                    isActive
+                      ? isLight ? 'text-zinc-950' : 'text-white'
+                      : isLight ? 'text-zinc-700 group-hover:text-zinc-950' : 'text-zinc-400 group-hover:text-zinc-200'
+                  }`}>
+                    {cat.label}
+                  </h2>
+                  <div className="flex items-center justify-between gap-1.5 mt-1.5 w-full">
+                    <p className={`font-mono text-[9px] sm:text-[10px] truncate ${
+                      isLight ? 'text-zinc-500' : 'text-zinc-500'
+                    }`}>
+                      {catItems.length} {catItems.length === 1 ? 'TITLE' : 'TITLES'}
+                    </p>
 
                     {onEditLibrary && (
                       <span
@@ -174,34 +193,18 @@ export function LibraryHub({
                             onEditLibrary(cat)
                           }
                         }}
-                        className={`font-mono text-[8px] px-1 py-0.5 border transition-all cursor-pointer opacity-70 hover:opacity-100 ${
+                        className={`font-mono text-[10px] sm:text-xs font-semibold px-2 sm:px-2.5 py-0.5 sm:py-1 border transition-all cursor-pointer flex items-center gap-1 shrink-0 ${
                           isLight
-                            ? 'border-zinc-300 text-zinc-600 hover:text-black hover:border-zinc-500 bg-white'
-                            : 'border-zinc-800 text-zinc-400 hover:text-white hover:border-zinc-600 bg-black/60'
+                            ? 'border-zinc-300 text-zinc-700 hover:text-black hover:border-zinc-600 bg-white hover:bg-zinc-100 shadow-xs'
+                            : 'border-zinc-800 text-zinc-300 hover:text-white hover:border-zinc-500 bg-black/70 hover:bg-zinc-900'
                         }`}
                         title={`Edit "${cat.label}"`}
                       >
-                        [✎]
+                        <span className="text-[9px] sm:text-[10px]">✏</span>
+                        <span>EDIT</span>
                       </span>
                     )}
                   </div>
-                </div>
-
-                {/* Card Title & Counts */}
-                <div className="mt-1.5 min-w-0">
-                  <h2 className={`font-mono text-xs sm:text-sm font-bold tracking-tight truncate transition-colors ${
-                    isActive
-                      ? isLight ? 'text-zinc-950' : 'text-white'
-                      : isLight ? 'text-zinc-700 group-hover:text-zinc-950' : 'text-zinc-400 group-hover:text-zinc-200'
-                  }`}>
-                    {cat.label}
-                  </h2>
-                  <p className={`font-mono text-[9px] sm:text-[10px] mt-0.5 truncate ${
-                    isLight ? 'text-zinc-500' : 'text-zinc-500'
-                  }`}>
-                    {catItems.length} {catItems.length === 1 ? 'TITLE' : 'TITLES'} · {watchedCount} WATCHED
-                    {watchingCount > 0 && ` · ${watchingCount} WATCHING`}
-                  </p>
                 </div>
               </button>
             )

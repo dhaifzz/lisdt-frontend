@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { LibraryCategory } from '../types'
 import { useTheme } from '../context/ThemeContext'
+import { toast } from '../context/ToastContext'
 
 interface AddLibraryModalProps {
   isOpen: boolean
@@ -36,43 +37,44 @@ export default function AddLibraryModal({
   const [headline, setHeadline] = useState('')
   const [subhead, setSubhead] = useState('')
   const [description, setDescription] = useState('')
-  const [type, setType] = useState<LibraryCategory['type']>('series')
-  const [unitLabel, setUnitLabel] = useState('SEASONS')
+  const [type, setType] = useState<'series' | 'movies'>('series')
+  const [unitLabel, setUnitLabel] = useState('')
   const [hasManuallyEdited, setHasManuallyEdited] = useState(false)
 
   // Initialize or reset form when modal opens
   useEffect(() => {
-    if (isOpen) {
-      if (libraryToEdit) {
-        setLabel(libraryToEdit.label)
-        setTag(libraryToEdit.tag)
-        setHeadline(libraryToEdit.headline)
-        setSubhead(libraryToEdit.subhead)
-        setDescription(libraryToEdit.description)
-        setType(libraryToEdit.type || (libraryToEdit.id === 'movies' ? 'movies' : 'series'))
-        setUnitLabel(libraryToEdit.unitLabel || (libraryToEdit.type === 'movies' ? 'PARTS' : 'SEASONS'))
-        setHasManuallyEdited(true)
-      } else {
-        setLabel('')
-        setTag('')
-        setHeadline('')
-        setSubhead('')
-        setDescription('')
-        setType('series')
-        setUnitLabel('SEASONS')
-        setHasManuallyEdited(false)
-      }
+    if (!isOpen) return
+
+    if (libraryToEdit) {
+      setLabel(libraryToEdit.label)
+      setTag(libraryToEdit.tag)
+      setHeadline(libraryToEdit.headline)
+      setSubhead(libraryToEdit.subhead)
+      setDescription(libraryToEdit.description)
+      setType(libraryToEdit.type)
+      setUnitLabel(libraryToEdit.unitLabel ?? (libraryToEdit.type === 'movies' ? 'PARTS' : 'SEASONS'))
+      setHasManuallyEdited(true)
+    } else {
+      setLabel('')
+      setTag('')
+      setHeadline('')
+      setSubhead('')
+      setDescription('')
+      setType('series')
+      setUnitLabel('SEASONS')
+      setHasManuallyEdited(false)
     }
+    setShowDeleteConfirm(false)
+    setIsDeleting(false)
   }, [isOpen, libraryToEdit])
 
   // Lock background page scrolling while modal is open
   useEffect(() => {
-    if (isOpen) {
-      const orig = document.body.style.overflow
-      document.body.style.overflow = 'hidden'
-      return () => {
-        document.body.style.overflow = orig
-      }
+    if (!isOpen) return
+    const prevOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.body.style.overflow = prevOverflow
     }
   }, [isOpen])
 
@@ -111,7 +113,35 @@ export default function AddLibraryModal({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     const finalLabel = (label.trim() || libraryToEdit?.label || '').toUpperCase()
-    if (!finalLabel) return
+    if (!finalLabel) {
+      toast.error('ERR: LIBRARY_TITLE_REQUIRED')
+      return
+    }
+    if (finalLabel.length < 2 || finalLabel.length > 30) {
+      toast.error('ERR: LIBRARY_TITLE_MUST_BE_2_TO_30_CHARS')
+      return
+    }
+
+    const finalTag = (tag.trim() || libraryToEdit?.tag || finalLabel).toUpperCase().replace(/[^A-Z0-9]/g, '_')
+    if (finalTag.length > 20) {
+      toast.error('ERR: TAG_EXCEEDS_20_CHARS')
+      return
+    }
+
+    if (headline.trim().length > 40) {
+      toast.error('ERR: HEADLINE_EXCEEDS_40_CHARS')
+      return
+    }
+
+    if (subhead.trim().length > 40) {
+      toast.error('ERR: SUBHEAD_EXCEEDS_40_CHARS')
+      return
+    }
+
+    if (description.trim().length > 160) {
+      toast.error('ERR: DESCRIPTION_EXCEEDS_160_CHARS')
+      return
+    }
 
     const id = libraryToEdit
       ? libraryToEdit.id
@@ -122,7 +152,7 @@ export default function AddLibraryModal({
     const updatedCategory: LibraryCategory = {
       id,
       label: finalLabel,
-      tag: (tag.trim() || libraryToEdit?.tag || finalLabel).toUpperCase().replace(/[^A-Z0-9]/g, '_'),
+      tag: finalTag,
       headline: headline.trim() || libraryToEdit?.headline || `Your ${finalLabel.toLowerCase()}`,
       subhead: subhead.trim() || libraryToEdit?.subhead || (finalType === 'movies' ? 'cinema diary.' : 'series diary.'),
       description: description.trim() || libraryToEdit?.description || `Track, rate & log every item in your collection. Minimal. Honest. Yours.`,
@@ -139,15 +169,21 @@ export default function AddLibraryModal({
     <div className="space-y-5">
       {/* Field: Library Title */}
       <div>
-        <label className={`block font-mono text-[9px] tracking-wider mb-1.5 ${isLight ? 'text-zinc-600' : 'text-zinc-500'}`}>
-          LIBRARY_TITLE / NAME *
-        </label>
+        <div className="flex items-center justify-between mb-1.5">
+          <label className={`block font-mono text-[9px] tracking-wider ${isLight ? 'text-zinc-600' : 'text-zinc-500'}`}>
+            LIBRARY_TITLE / NAME *
+          </label>
+          <span className={`font-mono text-[9px] ${label.length > 25 ? 'text-amber-500 font-bold' : isLight ? 'text-zinc-500' : 'text-zinc-600'}`}>
+            {label.length}/30
+          </span>
+        </div>
         <input
           type="text"
           value={label}
           onChange={e => handleLabelChange(e.target.value)}
           required={mode !== 'hero'}
-          placeholder="e.g. Manga, K-Drama, Video Games, Documentaries"
+          maxLength={30}
+          placeholder="e.g. Manga, K-Drama, Video Games (2-30 chars)"
           className={`w-full font-medium text-sm px-3.5 py-2.5 outline-none transition-colors border ${
             isLight
               ? 'bg-zinc-50 border-zinc-300 focus:border-zinc-800 text-zinc-900 placeholder-zinc-400'
@@ -243,12 +279,18 @@ export default function AddLibraryModal({
     <div className="space-y-5">
       {/* Field: Tag */}
       <div>
-        <label className={`block font-mono text-[9px] tracking-wider mb-1.5 ${isLight ? 'text-zinc-600' : 'text-zinc-500'}`}>
-          SYSTEM_TAG [APPEARS ON TOP OF TITLE]
-        </label>
+        <div className="flex items-center justify-between mb-1.5">
+          <label className={`block font-mono text-[9px] tracking-wider ${isLight ? 'text-zinc-600' : 'text-zinc-500'}`}>
+            SYSTEM_TAG [APPEARS ON TOP OF TITLE]
+          </label>
+          <span className={`font-mono text-[9px] ${tag.length > 16 ? 'text-amber-500 font-bold' : isLight ? 'text-zinc-500' : 'text-zinc-600'}`}>
+            {tag.length}/20
+          </span>
+        </div>
         <input
           type="text"
           value={tag}
+          maxLength={20}
           onChange={e => {
             setTag(e.target.value)
             setHasManuallyEdited(true)
@@ -265,12 +307,18 @@ export default function AddLibraryModal({
       {/* Row: Headline & Subhead */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label className={`block font-mono text-[9px] tracking-wider mb-1.5 ${isLight ? 'text-zinc-600' : 'text-zinc-500'}`}>
-            HERO_HEADLINE [TOP LINE]
-          </label>
+          <div className="flex items-center justify-between mb-1.5">
+            <label className={`block font-mono text-[9px] tracking-wider ${isLight ? 'text-zinc-600' : 'text-zinc-500'}`}>
+              HERO_HEADLINE [TOP LINE]
+            </label>
+            <span className={`font-mono text-[9px] ${headline.length > 32 ? 'text-amber-500 font-bold' : isLight ? 'text-zinc-500' : 'text-zinc-600'}`}>
+              {headline.length}/40
+            </span>
+          </div>
           <input
             type="text"
             value={headline}
+            maxLength={40}
             onChange={e => {
               setHeadline(e.target.value)
               setHasManuallyEdited(true)
@@ -285,12 +333,18 @@ export default function AddLibraryModal({
         </div>
 
         <div>
-          <label className={`block font-mono text-[9px] tracking-wider mb-1.5 ${isLight ? 'text-zinc-600' : 'text-zinc-500'}`}>
-            HERO_SUBHEAD [MUTED SECOND LINE]
-          </label>
+          <div className="flex items-center justify-between mb-1.5">
+            <label className={`block font-mono text-[9px] tracking-wider ${isLight ? 'text-zinc-600' : 'text-zinc-500'}`}>
+              HERO_SUBHEAD [MUTED SECOND LINE]
+            </label>
+            <span className={`font-mono text-[9px] ${subhead.length > 32 ? 'text-amber-500 font-bold' : isLight ? 'text-zinc-500' : 'text-zinc-600'}`}>
+              {subhead.length}/40
+            </span>
+          </div>
           <input
             type="text"
             value={subhead}
+            maxLength={40}
             onChange={e => {
               setSubhead(e.target.value)
               setHasManuallyEdited(true)
@@ -307,12 +361,18 @@ export default function AddLibraryModal({
 
       {/* Field: Description */}
       <div>
-        <label className={`block font-mono text-[9px] tracking-wider mb-1.5 ${isLight ? 'text-zinc-600' : 'text-zinc-500'}`}>
-          HERO_DESCRIPTION_TEXT
-        </label>
+        <div className="flex items-center justify-between mb-1.5">
+          <label className={`block font-mono text-[9px] tracking-wider ${isLight ? 'text-zinc-600' : 'text-zinc-500'}`}>
+            HERO_DESCRIPTION_TEXT
+          </label>
+          <span className={`font-mono text-[9px] ${description.length > 140 ? 'text-amber-500 font-bold' : isLight ? 'text-zinc-500' : 'text-zinc-600'}`}>
+            {description.length}/160
+          </span>
+        </div>
         <textarea
           rows={2}
           value={description}
+          maxLength={160}
           onChange={e => {
             setDescription(e.target.value)
             setHasManuallyEdited(true)
