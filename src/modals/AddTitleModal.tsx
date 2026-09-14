@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react'
 import { Anime, MediaCategory, CATEGORIES, STATUS_MAP } from '../types'
 import { useTheme } from '../context/ThemeContext'
 import { toast } from '../context/ToastContext'
+import { uploadApi } from '../lib/api'
 
 interface AddTitleModalProps {
   isOpen: boolean
@@ -37,6 +38,7 @@ export default function AddTitleModal({
   const [topRank, setTopRank] = useState<number | null>(null)
   const [coverErr, setCoverErr] = useState(false)
   const [coverMode, setCoverMode] = useState<'url' | 'upload'>('url')
+  const [isUploadingCover, setIsUploadingCover] = useState(false)
 
   // Map of rank number -> other title currently occupying that rank
   const occupiedRanks = useMemo(() => {
@@ -49,17 +51,38 @@ export default function AddTitleModal({
     return map
   }, [mediaList])
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
-    if (!file.type.match(/^image\/(png|jpeg|jpg)$/)) return
-    const reader = new FileReader()
-    reader.onload = (ev) => {
-      const result = ev.target?.result as string
-      setCover(result)
-      setCoverErr(false)
+    if (!file.type.match(/^image\/(png|jpeg|jpg|webp|gif|avif)$/)) {
+      toast.error('ERR: ONLY_IMAGES_ALLOWED')
+      return
     }
-    reader.readAsDataURL(file)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('ERR: IMAGE_EXCEEDS_5MB')
+      return
+    }
+
+    setIsUploadingCover(true)
+    try {
+      const res = await uploadApi.uploadCover(file)
+      setCover(res.url)
+      setCoverErr(false)
+      toast.success('COVER_UPLOADED')
+    } catch (err: any) {
+      console.error('Storage upload failed:', err)
+      // Fallback to local data URL preview so user isn't blocked
+      const reader = new FileReader()
+      reader.onload = (ev) => {
+        const result = ev.target?.result as string
+        setCover(result)
+        setCoverErr(false)
+      }
+      reader.readAsDataURL(file)
+      toast.error(err?.message || 'Storage upload failed, using local preview')
+    } finally {
+      setIsUploadingCover(false)
+    }
   }
 
   // Sync default category when modal opens
@@ -507,16 +530,25 @@ export default function AddTitleModal({
                   }`}>
                     <input
                       type="file"
-                      accept="image/png,image/jpeg,image/jpg"
+                      accept="image/png,image/jpeg,image/jpg,image/webp,image/gif"
+                      disabled={isUploadingCover}
                       className="hidden"
                       onChange={handleImageUpload}
                     />
                     <div className="flex flex-col items-center gap-1 pointer-events-none">
-                      <svg className={`w-4 h-4 transition-colors ${isLight ? 'text-zinc-400 group-hover:text-zinc-700' : 'text-zinc-600 group-hover:text-zinc-400'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
-                      </svg>
+                      {isUploadingCover ? (
+                        <div className={`w-4 h-4 border-2 border-t-transparent rounded-full animate-spin ${isLight ? 'border-zinc-800' : 'border-white'}`} />
+                      ) : (
+                        <svg className={`w-4 h-4 transition-colors ${isLight ? 'text-zinc-400 group-hover:text-zinc-700' : 'text-zinc-600 group-hover:text-zinc-400'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+                        </svg>
+                      )}
                       <span className={`font-mono text-[9px] tracking-wider transition-colors ${isLight ? 'text-zinc-500 group-hover:text-zinc-800' : 'text-zinc-600 group-hover:text-zinc-400'}`}>
-                        {cover.startsWith('data:') ? 'IMAGE_LOADED — click to replace' : 'CLICK_TO_UPLOAD .png / .jpg'}
+                        {isUploadingCover
+                          ? 'UPLOADING_TO_STORAGE...'
+                          : cover.trim() !== ''
+                          ? 'IMAGE_ATTACHED — click to replace'
+                          : 'CLICK_TO_UPLOAD .png / .jpg / .webp'}
                       </span>
                     </div>
                   </label>

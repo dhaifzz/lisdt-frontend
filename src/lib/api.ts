@@ -229,3 +229,29 @@ export const mediaApi = {
   delete: (id: number) =>
     apiFetch<{ message: string }>(`/media/${id}`, { method: 'DELETE' }),
 }
+
+// --- Upload ------------------------------------------------------------------
+
+export const uploadApi = {
+  uploadCover: async (file: File): Promise<{ url: string; message: string }> => {
+    const token = getToken()
+    const formData = new FormData()
+    formData.append('image', file)
+
+    const res = await fetch(`${BASE_URL}/upload/cover`, {
+      method: 'POST',
+      headers: {
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: formData,
+    })
+
+    const data = await res.json()
+    if (!res.ok) {
+      throw new Error(data?.error || 'Failed to upload image')
+    }
+
+    return data
+  },
+}
+
