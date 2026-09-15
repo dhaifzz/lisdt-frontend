@@ -30,7 +30,7 @@ export default function AddTitleModal({
   const [title, setTitle] = useState('')
   const [cover, setCover] = useState('')
   const [year, setYear] = useState<number>(new Date().getFullYear())
-  const [seasonsFinished, setSeasonsFinished] = useState(1)
+  const [seasonsFinished, setSeasonsFinished] = useState<number | string>(1)
   const [parts, setParts] = useState(1)
   const [moviesCount, setMoviesCount] = useState(0)
   const [status, setStatus] = useState<Anime['status']>('watching')
@@ -140,7 +140,7 @@ export default function AddTitleModal({
       title: cleanTitle,
       cover: cleanedCover,
       year: Number(year) || new Date().getFullYear(),
-      seasonsFinished: isMovie ? 0 : Math.max(0, Number(seasonsFinished) || 0),
+      seasonsFinished: isMovie ? 0 : Math.max(0, Math.round((parseFloat(String(seasonsFinished)) || 0) * 10) / 10),
       parts: isMovie ? Math.max(1, Number(parts) || 1) : undefined,
       moviesCount: !isMovie ? Math.max(0, Number(moviesCount) || 0) : undefined,
       status,
@@ -611,21 +611,78 @@ export default function AddTitleModal({
                       <label className={`block font-mono text-[9px] tracking-wider mb-1 ${isLight ? 'text-zinc-600' : 'text-zinc-500'}`}>
                         SEASONS_FINISHED
                       </label>
-                      <input
-                        type="text"
-                        inputMode="numeric"
-                        pattern="[0-9]*"
-                        value={seasonsFinished}
-                        onChange={e => {
-                          const val = e.target.value.replace(/\D/g, '')
-                          setSeasonsFinished(val === '' ? 0 : Math.min(100, parseInt(val, 10)))
-                        }}
-                        className={`w-full font-mono text-xs px-3 py-2 outline-none transition-colors border ${
-                          isLight
-                            ? 'bg-zinc-50 border-zinc-300 focus:border-zinc-800 text-zinc-900'
-                            : 'bg-[#080808] border-zinc-800 focus:border-white text-white'
-                        }`}
-                      />
+                      <div className="flex items-center">
+                        <button
+                          type="button"
+                          onClick={() => setSeasonsFinished(prev => Math.max(0, Math.round((Number(prev) - 0.5) * 10) / 10))}
+                          className={`w-8 h-8 border font-mono text-sm flex items-center justify-center transition-colors cursor-pointer select-none ${
+                            isLight
+                              ? 'border-zinc-300 bg-zinc-100 text-zinc-700 hover:text-zinc-950 hover:border-zinc-400'
+                              : 'border-zinc-800 bg-zinc-900 text-zinc-300 hover:text-white hover:border-zinc-600'
+                          }`}
+                          title="Decrease seasons (-0.5)"
+                        >
+                          -
+                        </button>
+                        <input
+                          type="text"
+                          inputMode="decimal"
+                          value={seasonsFinished}
+                          onChange={e => {
+                            const val = e.target.value
+                            if (val === '' || /^\d*\.?\d*$/.test(val)) {
+                              setSeasonsFinished(val)
+                            }
+                          }}
+                          onBlur={() => {
+                            const num = parseFloat(String(seasonsFinished))
+                            setSeasonsFinished(isNaN(num) || num < 0 ? 0 : Math.min(100, Math.round(num * 10) / 10))
+                          }}
+                          className={`flex-1 text-center font-mono text-xs h-8 outline-none border-y ${
+                            isLight ? 'bg-zinc-50 border-zinc-300 text-zinc-900' : 'bg-[#080808] border-zinc-800 text-white'
+                          }`}
+                          placeholder="e.g. 1.5"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setSeasonsFinished(prev => Math.min(100, Math.round((Number(prev) + 0.5) * 10) / 10))}
+                          className={`w-8 h-8 border font-mono text-sm flex items-center justify-center transition-colors cursor-pointer select-none ${
+                            isLight
+                              ? 'border-zinc-300 bg-zinc-100 text-zinc-700 hover:text-zinc-950 hover:border-zinc-400'
+                              : 'border-zinc-800 bg-zinc-900 text-zinc-300 hover:text-white hover:border-zinc-600'
+                          }`}
+                          title="Increase seasons (+0.5)"
+                        >
+                          +
+                        </button>
+                      </div>
+                      <div className="flex items-center gap-1 mt-1">
+                        {[
+                          { label: '+0.5', delta: 0.5 },
+                          { label: '+1.0', delta: 1.0 },
+                          { label: '½', value: 0.5 },
+                          { label: '1.5', value: 1.5 },
+                        ].map(btn => (
+                          <button
+                            key={btn.label}
+                            type="button"
+                            onClick={() => {
+                              if ('value' in btn && btn.value !== undefined) {
+                                setSeasonsFinished(btn.value)
+                              } else if ('delta' in btn && btn.delta !== undefined) {
+                                setSeasonsFinished(prev => Math.min(100, Math.round((Number(prev) + btn.delta) * 10) / 10))
+                              }
+                            }}
+                            className={`font-mono text-[8.5px] px-1.5 py-0.5 border transition-colors cursor-pointer ${
+                              isLight
+                                ? 'border-zinc-300 bg-zinc-100 text-zinc-600 hover:text-zinc-950'
+                                : 'border-zinc-800 bg-zinc-900/60 text-zinc-400 hover:text-white'
+                            }`}
+                          >
+                            {btn.label}
+                          </button>
+                        ))}
+                      </div>
                     </div>
                   </div>
 

@@ -65,7 +65,7 @@ export default function EditAnimeView({
   const [title, setTitle] = useState(anime.title)
   const [cover, setCover] = useState(anime.cover?.includes('photo-1578632767115-351597cf2477') ? '' : (anime.cover || ''))
   const [coverMode, setCoverMode] = useState<'upload' | 'url'>('upload')
-  const [seasonsFinished, setSeasonsFinished] = useState(anime.seasonsFinished ?? (anime.category === 'movies' ? 0 : 1))
+  const [seasonsFinished, setSeasonsFinished] = useState<number | string>(anime.seasonsFinished ?? (anime.category === 'movies' ? 0 : 1))
   const [parts, setParts] = useState(anime.parts ?? 1)
   const [moviesCount, setMoviesCount] = useState(anime.moviesCount ?? 0)
   const [year, setYear] = useState(anime.year)
@@ -143,7 +143,7 @@ export default function EditAnimeView({
       category,
       title: cleanTitle,
       cover: cleanedCover,
-      seasonsFinished: isMovie ? 0 : Math.max(0, Number(seasonsFinished) || 0),
+      seasonsFinished: isMovie ? 0 : Math.max(0, Math.round((parseFloat(String(seasonsFinished)) || 0) * 10) / 10),
       parts: isMovie ? Math.max(1, Number(parts) || 1) : undefined,
       moviesCount: !isMovie ? Math.max(0, Number(moviesCount) || 0) : undefined,
       year: Number(year) || anime.year,
@@ -239,7 +239,7 @@ export default function EditAnimeView({
             <p className={`font-mono text-xs mt-1 ${isLight ? 'text-zinc-500' : 'text-zinc-500'}`}>
               {year} · <span className={isLight ? STATUS_MAP[status].textLight : STATUS_MAP[status].text}>{STATUS_MAP[status].label}</span>
               {isMovie && ` · ${parts} ${parts === 1 ? 'Part' : 'Parts'}`}
-              {!isMovie && seasonsFinished > 0 && ` · ${seasonsFinished} ${seasonsFinished === 1 ? 'Season' : 'Seasons'}`}
+              {!isMovie && Number(seasonsFinished) > 0 && ` · ${Number(seasonsFinished)} ${Number(seasonsFinished) === 1 ? 'Season' : 'Seasons'}`}
               {!isMovie && moviesCount > 0 && ` · +${moviesCount} ${moviesCount === 1 ? 'Movie' : 'Movies'}`}
             </p>
           </div>
@@ -655,41 +655,78 @@ export default function EditAnimeView({
                     <div className="flex items-center">
                       <button
                         type="button"
-                        onClick={() => setSeasonsFinished(prev => Math.max(0, prev - 1))}
+                        onClick={() => setSeasonsFinished(prev => Math.max(0, Math.round((Number(prev) - 0.5) * 10) / 10))}
                         className={`w-10 h-10 border font-mono text-base flex items-center justify-center transition-colors cursor-pointer select-none ${
                           isLight
                             ? 'border-zinc-300 bg-zinc-100 text-zinc-700 hover:text-zinc-950 hover:border-zinc-400'
                             : 'border-zinc-800 bg-zinc-900 text-zinc-300 hover:text-white hover:border-zinc-600'
                         }`}
-                        title="Decrease seasons"
+                        title="Decrease seasons (-0.5)"
                       >
                         -
                       </button>
                       <input
                         type="text"
-                        inputMode="numeric"
-                        pattern="[0-9]*"
+                        inputMode="decimal"
                         value={seasonsFinished}
                         onChange={e => {
-                          const val = e.target.value.replace(/\D/g, '')
-                          setSeasonsFinished(val === '' ? 0 : Math.min(100, parseInt(val, 10)))
+                          const val = e.target.value
+                          if (val === '' || /^\d*\.?\d*$/.test(val)) {
+                            setSeasonsFinished(val)
+                          }
+                        }}
+                        onBlur={() => {
+                          const num = parseFloat(String(seasonsFinished))
+                          setSeasonsFinished(isNaN(num) || num < 0 ? 0 : Math.min(100, Math.round(num * 10) / 10))
                         }}
                         className={`flex-1 text-center font-mono text-sm h-10 outline-none border-y ${
                           isLight ? 'bg-white border-zinc-300 text-zinc-950' : 'bg-[#080808] border-zinc-800 text-white'
                         }`}
+                        placeholder="e.g. 1.5"
                       />
                       <button
                         type="button"
-                        onClick={() => setSeasonsFinished(prev => Math.min(100, prev + 1))}
+                        onClick={() => setSeasonsFinished(prev => Math.min(100, Math.round((Number(prev) + 0.5) * 10) / 10))}
                         className={`w-10 h-10 border font-mono text-base flex items-center justify-center transition-colors cursor-pointer select-none ${
                           isLight
                             ? 'border-zinc-300 bg-zinc-100 text-zinc-700 hover:text-zinc-950 hover:border-zinc-400'
                             : 'border-zinc-800 bg-zinc-900 text-zinc-300 hover:text-white hover:border-zinc-600'
                         }`}
-                        title="Increase seasons"
+                        title="Increase seasons (+0.5)"
                       >
                         +
                       </button>
+                    </div>
+
+                    {/* Quick shortcut chips for half / whole seasons */}
+                    <div className="flex flex-wrap items-center gap-1.5 mt-2">
+                      <span className={`font-mono text-[9px] ${isLight ? 'text-zinc-400' : 'text-zinc-600'}`}>QUICK:</span>
+                      {[
+                        { label: '+0.5 S', delta: 0.5 },
+                        { label: '+1.0 S', delta: 1.0 },
+                        { label: '½ S', value: 0.5 },
+                        { label: '1.5 S', value: 1.5 },
+                        { label: '2.5 S', value: 2.5 },
+                      ].map(btn => (
+                        <button
+                          key={btn.label}
+                          type="button"
+                          onClick={() => {
+                            if ('value' in btn && btn.value !== undefined) {
+                              setSeasonsFinished(btn.value)
+                            } else if ('delta' in btn && btn.delta !== undefined) {
+                              setSeasonsFinished(prev => Math.min(100, Math.round((Number(prev) + btn.delta) * 10) / 10))
+                            }
+                          }}
+                          className={`font-mono text-[9px] px-2 py-0.5 border transition-colors cursor-pointer ${
+                            isLight
+                              ? 'border-zinc-300 bg-zinc-100 text-zinc-700 hover:border-zinc-400 hover:text-zinc-950'
+                              : 'border-zinc-800 bg-zinc-900/70 text-zinc-400 hover:border-zinc-600 hover:text-white'
+                          }`}
+                        >
+                          {btn.label}
+                        </button>
+                      ))}
                     </div>
                   </div>
 
