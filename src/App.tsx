@@ -589,6 +589,7 @@ export default function App() {
       <SignUpView
         onBack={() => navigate('/')}
         onNavigateSignIn={() => navigate('/signin')}
+        onNavigateVerifyPending={(email) => navigate(`/verify-email-pending?email=${encodeURIComponent(email)}`)}
       />
     )
   }

@@ -269,6 +269,27 @@ export const uploadApi = {
     return data
   },
 
+  uploadAvatar: async (file: File): Promise<{ url: string; user: AuthUser; message: string }> => {
+    const token = getToken()
+    const formData = new FormData()
+    formData.append('image', file)
+
+    const res = await fetch(`${BASE_URL}/upload/avatar`, {
+      method: 'POST',
+      headers: {
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: formData,
+    })
+
+    const data = await res.json()
+    if (!res.ok) {
+      throw new Error(data?.error || 'Failed to upload avatar')
+    }
+
+    return data
+  },
+
   deleteCover: async (url: string): Promise<boolean> => {
     if (!url || url.startsWith('data:')) return false
     try {

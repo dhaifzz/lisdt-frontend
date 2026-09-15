@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react'
-import { authApi } from '../../lib/api'
+import { authApi, uploadApi } from '../../lib/api'
 
 interface ProfileCardProps {
   avatarUrl?: string
@@ -8,8 +8,8 @@ interface ProfileCardProps {
   isLight?: boolean
 }
 
-const ALLOWED_TYPES = ['image/png', 'image/jpeg', 'image/gif']
-const MAX_BYTES = 3 * 1024 * 1024 // 3 MB
+const ALLOWED_TYPES = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp', 'image/gif', 'image/avif']
+const MAX_BYTES = 5 * 1024 * 1024 // 5 MB
 
 const DEFAULT_AVATAR = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 32 32' fill='%233f3f46'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E"
 
@@ -35,37 +35,51 @@ export function ProfileCard({
     if (!file) return
 
     if (!ALLOWED_TYPES.includes(file.type)) {
-      setError('Only PNG, JPEG, or GIF images are allowed.')
+      setError('Only PNG, JPEG, WEBP, or GIF images are allowed.')
       return
     }
 
     if (file.size > MAX_BYTES) {
-      setError('Image must be 3 MB or smaller.')
+      setError('Image must be 5 MB or smaller.')
       return
     }
 
     setError(null)
     setUploading(true)
 
-    const reader = new FileReader()
-    reader.onload = async () => {
-      const dataUrl = reader.result as string
-      setPreviewUrl(dataUrl)
-      try {
-        const res = await authApi.uploadAvatar(dataUrl)
-        onAvatarUpdate?.(res.user.avatar ?? dataUrl)
-      } catch (err: any) {
-        setError(err?.message ?? 'Upload failed. Please try again.')
-        setPreviewUrl(null)
-      } finally {
+    // Show instant local preview
+    const objectUrl = URL.createObjectURL(file)
+    setPreviewUrl(objectUrl)
+
+    try {
+      const res = await uploadApi.uploadAvatar(file)
+      const updatedAvatar = res.user.avatar || res.url
+      setPreviewUrl(updatedAvatar)
+      onAvatarUpdate?.(updatedAvatar)
+    } catch (err: any) {
+      console.error('Cloud avatar upload failed in ProfileCard, trying fallback:', err)
+      const reader = new FileReader()
+      reader.onload = async () => {
+        const dataUrl = reader.result as string
+        try {
+          const res = await authApi.uploadAvatar(dataUrl)
+          onAvatarUpdate?.(res.user.avatar ?? dataUrl)
+        } catch (fallbackErr: any) {
+          setError(fallbackErr?.message ?? 'Upload failed. Please try again.')
+          setPreviewUrl(null)
+        } finally {
+          setUploading(false)
+        }
+      }
+      reader.onerror = () => {
+        setError('Failed to read file.')
         setUploading(false)
       }
-    }
-    reader.onerror = () => {
-      setError('Failed to read file.')
+      reader.readAsDataURL(file)
+      return
+    } finally {
       setUploading(false)
     }
-    reader.readAsDataURL(file)
   }
 
   return (

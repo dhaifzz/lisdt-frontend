@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import Header from '../components/layout/Header'
-import { authApi, setToken, AuthUser } from '../lib/api'
+import { authApi, uploadApi, setToken, AuthUser } from '../lib/api'
 import { toast } from '../context/ToastContext'
 import { useTheme } from '../context/ThemeContext'
 
@@ -15,11 +15,212 @@ interface SettingsViewProps {
   onSignOut: () => void
 }
 
-const ALLOWED_TYPES = ['image/png', 'image/jpeg', 'image/gif']
-const MAX_BYTES = 3 * 1024 * 1024 // 3 MB
+const ALLOWED_TYPES = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp', 'image/gif', 'image/avif']
+const MAX_BYTES = 5 * 1024 * 1024 // 5 MB
 const USERNAME_REGEX = /^[a-zA-Z0-9_-]+$/
 
 const DEFAULT_AVATAR = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 32 32' fill='%233f3f46'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E"
+
+export function SettingsSkeleton({ isLight = false }: { isLight?: boolean }) {
+  const bgBox = isLight ? 'bg-zinc-200' : 'bg-zinc-900'
+  const bgBoxMuted = isLight ? 'bg-zinc-100' : 'bg-zinc-950/60'
+  const borderCol = isLight ? 'border-zinc-200' : 'border-zinc-900'
+  const cardBg = isLight ? 'bg-white shadow-xs' : 'bg-zinc-950/70'
+  const cornerBorder = isLight ? 'border-zinc-300' : 'border-zinc-700'
+
+  return (
+    <div className="space-y-10 fade-in">
+      {/* Status banner */}
+      <div className={`flex items-center justify-between font-mono text-[10px] animate-pulse ${
+        isLight ? 'text-zinc-500' : 'text-zinc-600'
+      }`}>
+        <span className="flex items-center gap-2">
+          <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-ping" />
+          <span>SYNCHRONIZING_ACCOUNT_DATA...</span>
+        </span>
+        <span>SETTINGS_VAULT</span>
+      </div>
+
+      {/* ─── SKELETON 1: PROFILE & IDENTITY ─── */}
+      <div className={`border p-6 sm:p-8 relative overflow-hidden transition-colors ${borderCol} ${cardBg}`}>
+        <div className={`absolute -top-1 -left-1 w-2 h-2 border-t border-l pointer-events-none ${cornerBorder}`} />
+        <div className={`absolute -top-1 -right-1 w-2 h-2 border-t border-r pointer-events-none ${cornerBorder}`} />
+
+        <div className={`flex items-center gap-2 mb-6 border-b pb-3 font-mono text-xs ${borderCol}`}>
+          <div className="w-2.5 h-2.5 bg-emerald-500/40 rounded-xs animate-pulse" />
+          <div className={`h-3 w-44 rounded-xs ${bgBox} animate-pulse`} />
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-[180px_1fr] gap-8 items-start">
+          {/* Avatar Skeleton */}
+          <div className="flex flex-col items-center sm:items-start gap-3">
+            <div className={`h-2.5 w-24 rounded-xs ${bgBox} animate-pulse`} />
+            <div className={`w-32 h-32 border flex items-center justify-center relative overflow-hidden ${
+              isLight ? 'bg-zinc-100 border-zinc-300' : 'bg-zinc-900/80 border-zinc-800'
+            }`}>
+              <div className={`w-10 h-10 rounded-full border-2 border-dashed ${isLight ? 'border-zinc-300' : 'border-zinc-800'} animate-pulse`} />
+              <div className="absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r from-transparent via-white/[0.04] to-transparent pointer-events-none" />
+            </div>
+            <div className={`h-2.5 w-36 rounded-xs ${bgBox} animate-pulse`} />
+          </div>
+
+          {/* Username Form Skeleton */}
+          <div className="space-y-4">
+            <div>
+              <div className={`h-2.5 w-36 rounded-xs mb-2 ${bgBox} animate-pulse`} />
+              <div className={`h-10 w-full border ${borderCol} ${bgBoxMuted} relative overflow-hidden`}>
+                <div className="absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r from-transparent via-white/[0.04] to-transparent pointer-events-none" />
+              </div>
+              <div className={`h-2 w-48 rounded-xs mt-2 ${bgBox} animate-pulse`} />
+            </div>
+            <div className="pt-2">
+              <div className={`h-8 w-32 rounded-xs ${bgBox} animate-pulse`} />
+            </div>
+          </div>
+        </div>
+
+        <div className="absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r from-transparent via-white/[0.03] to-transparent pointer-events-none" />
+      </div>
+
+      {/* ─── SKELETON 2: SECURITY & PASSWORD ─── */}
+      <div className={`border p-6 sm:p-8 relative overflow-hidden transition-colors ${borderCol} ${cardBg}`}>
+        <div className={`absolute -top-1 -left-1 w-2 h-2 border-t border-l pointer-events-none ${cornerBorder}`} />
+        <div className={`absolute -top-1 -right-1 w-2 h-2 border-t border-r pointer-events-none ${cornerBorder}`} />
+
+        <div className={`flex items-center gap-2 mb-6 border-b pb-3 font-mono text-xs ${borderCol}`}>
+          <div className="w-2.5 h-2.5 bg-blue-500/40 rounded-xs animate-pulse" />
+          <div className={`h-3 w-48 rounded-xs ${bgBox} animate-pulse`} />
+        </div>
+
+        <div className="space-y-4 max-w-lg">
+          <div>
+            <div className={`h-2.5 w-28 rounded-xs mb-2 ${bgBox} animate-pulse`} />
+            <div className={`h-10 w-full border ${borderCol} ${bgBoxMuted} relative overflow-hidden`}>
+              <div className="absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r from-transparent via-white/[0.04] to-transparent pointer-events-none" />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <div className={`h-2.5 w-24 rounded-xs mb-2 ${bgBox} animate-pulse`} />
+              <div className={`h-10 w-full border ${borderCol} ${bgBoxMuted} relative overflow-hidden`}>
+                <div className="absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r from-transparent via-white/[0.04] to-transparent pointer-events-none" />
+              </div>
+            </div>
+            <div>
+              <div className={`h-2.5 w-36 rounded-xs mb-2 ${bgBox} animate-pulse`} />
+              <div className={`h-10 w-full border ${borderCol} ${bgBoxMuted} relative overflow-hidden`}>
+                <div className="absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r from-transparent via-white/[0.04] to-transparent pointer-events-none" />
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between pt-1">
+            <div className={`h-3 w-28 rounded-xs ${bgBox} animate-pulse`} />
+            <div className={`h-8 w-36 rounded-xs ${bgBox} animate-pulse`} />
+          </div>
+        </div>
+
+        <div className="absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r from-transparent via-white/[0.03] to-transparent pointer-events-none" />
+      </div>
+
+      {/* ─── SKELETON 3: INTERFACE & DISPLAY THEME ─── */}
+      <div className={`border p-6 sm:p-8 relative overflow-hidden transition-colors ${borderCol} ${cardBg}`}>
+        <div className={`absolute -top-1 -left-1 w-2 h-2 border-t border-l pointer-events-none ${cornerBorder}`} />
+        <div className={`absolute -top-1 -right-1 w-2 h-2 border-t border-r pointer-events-none ${cornerBorder}`} />
+
+        <div className={`flex items-center gap-2 mb-6 border-b pb-3 font-mono text-xs ${borderCol}`}>
+          <div className="w-2.5 h-2.5 bg-amber-500/40 rounded-xs animate-pulse" />
+          <div className={`h-3 w-56 rounded-xs ${bgBox} animate-pulse`} />
+        </div>
+
+        <div className="space-y-4">
+          <div className="space-y-1.5">
+            <div className={`h-3 w-3/4 rounded-xs ${bgBox} animate-pulse`} />
+            <div className={`h-3 w-1/2 rounded-xs ${bgBox} animate-pulse`} />
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+            {[1, 2].map((i) => (
+              <div
+                key={i}
+                className={`p-4 border relative overflow-hidden ${borderCol} ${bgBoxMuted}`}
+              >
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <div className={`w-3.5 h-3.5 rounded-full ${bgBox} animate-pulse`} />
+                    <div className={`h-3 w-24 rounded-xs ${bgBox} animate-pulse`} />
+                  </div>
+                  <div className={`h-4 w-12 rounded-xs ${bgBox} animate-pulse`} />
+                </div>
+                <div className="space-y-1.5 mb-4">
+                  <div className={`h-2.5 w-full rounded-xs ${bgBox} animate-pulse`} />
+                  <div className={`h-2.5 w-4/5 rounded-xs ${bgBox} animate-pulse`} />
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <div className={`w-3.5 h-3.5 rounded-xs ${bgBox} animate-pulse`} />
+                  <div className={`w-3.5 h-3.5 rounded-xs ${bgBox} animate-pulse`} />
+                  <div className={`w-3.5 h-3.5 rounded-xs ${bgBox} animate-pulse`} />
+                </div>
+                <div className="absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r from-transparent via-white/[0.04] to-transparent pointer-events-none" />
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r from-transparent via-white/[0.03] to-transparent pointer-events-none" />
+      </div>
+
+      {/* ─── SKELETON 4: SYSTEM & ACCOUNT METRICS ─── */}
+      <div className={`border p-6 sm:p-8 relative overflow-hidden transition-colors ${borderCol} ${cardBg}`}>
+        <div className={`absolute -top-1 -left-1 w-2 h-2 border-t border-l pointer-events-none ${cornerBorder}`} />
+        <div className={`absolute -top-1 -right-1 w-2 h-2 border-t border-r pointer-events-none ${cornerBorder}`} />
+
+        <div className={`flex items-center gap-2 mb-6 border-b pb-3 font-mono text-xs ${borderCol}`}>
+          <div className="w-2.5 h-2.5 bg-zinc-500/40 rounded-xs animate-pulse" />
+          <div className={`h-3 w-52 rounded-xs ${bgBox} animate-pulse`} />
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className={`border p-3 ${borderCol} ${bgBoxMuted} relative overflow-hidden`}>
+              <div className={`h-2 w-20 rounded-xs mb-2 ${bgBox} animate-pulse`} />
+              <div className={`h-3.5 w-28 rounded-xs ${bgBox} animate-pulse`} />
+              <div className="absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r from-transparent via-white/[0.04] to-transparent pointer-events-none" />
+            </div>
+          ))}
+        </div>
+
+        <div className="absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r from-transparent via-white/[0.03] to-transparent pointer-events-none" />
+      </div>
+
+      {/* ─── SKELETON 5: DANGER ZONE ─── */}
+      <div className={`border p-6 sm:p-8 relative overflow-hidden transition-colors ${
+        isLight ? 'border-red-200 bg-red-50/20' : 'border-red-900/40 bg-red-950/10'
+      }`}>
+        <div className={`absolute -top-1 -left-1 w-2 h-2 border-t border-l pointer-events-none ${isLight ? 'border-red-300' : 'border-red-800'}`} />
+        <div className={`absolute -top-1 -right-1 w-2 h-2 border-t border-r pointer-events-none ${isLight ? 'border-red-300' : 'border-red-800'}`} />
+
+        <div className={`flex items-center gap-2 mb-4 border-b pb-3 font-mono text-xs ${isLight ? 'border-red-200' : 'border-red-900/40'}`}>
+          <div className="w-2.5 h-2.5 bg-red-500/40 rounded-xs animate-pulse" />
+          <div className={`h-3 w-64 rounded-xs ${isLight ? 'bg-red-200' : 'bg-red-900/50'} animate-pulse`} />
+        </div>
+
+        <div className="space-y-4">
+          <div className="space-y-1.5">
+            <div className={`h-3 w-full max-w-xl rounded-xs ${isLight ? 'bg-red-200/60' : 'bg-red-950/60'} animate-pulse`} />
+            <div className={`h-3 w-2/3 rounded-xs ${isLight ? 'bg-red-200/60' : 'bg-red-950/60'} animate-pulse`} />
+          </div>
+          <div className="pt-2">
+            <div className={`h-9 w-48 rounded-xs ${isLight ? 'bg-red-200' : 'bg-red-900/50'} animate-pulse`} />
+          </div>
+        </div>
+
+        <div className="absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r from-transparent via-white/[0.03] to-transparent pointer-events-none" />
+      </div>
+    </div>
+  )
+}
 
 export default function SettingsView({
   currentUser,
@@ -114,38 +315,54 @@ export default function SettingsView({
     if (!file) return
 
     if (!ALLOWED_TYPES.includes(file.type)) {
-      toast.error('ERR: ONLY_PNG_JPEG_OR_GIF_ALLOWED')
+      toast.error('ERR: ONLY_IMAGES_ALLOWED (PNG, JPG, WEBP, GIF)')
       return
     }
 
     if (file.size > MAX_BYTES) {
-      toast.error('ERR: IMAGE_EXCEEDS_3MB_LIMIT')
+      toast.error('ERR: IMAGE_EXCEEDS_5MB_LIMIT')
       return
     }
 
     setAvatarUploading(true)
 
-    const reader = new FileReader()
-    reader.onload = async () => {
-      const dataUrl = reader.result as string
-      setAvatarPreview(dataUrl)
-      try {
-        const res = await authApi.uploadAvatar(dataUrl)
-        const updatedAvatar = res.user.avatar ?? dataUrl
-        onUpdateUser(currentUser || `@${username}`, updatedAvatar)
-        toast.success('AVATAR_UPDATED_SUCCESSFULLY')
-      } catch (err: any) {
-        toast.error(`ERR: ${err?.message || 'UPLOAD_FAILED'}`)
-        setAvatarPreview(userProfile?.avatar || currentAvatar || null)
-      } finally {
+    // Show immediate local preview while uploading to cloud
+    const objectUrl = URL.createObjectURL(file)
+    setAvatarPreview(objectUrl)
+
+    try {
+      const res = await uploadApi.uploadAvatar(file)
+      const updatedAvatar = res.user.avatar || res.url
+      setAvatarPreview(updatedAvatar)
+      onUpdateUser(currentUser || `@${username}`, updatedAvatar)
+      toast.success('AVATAR_UPDATED_SUCCESSFULLY')
+    } catch (err: any) {
+      console.error('Cloud avatar upload failed, trying direct base64 fallback:', err)
+      const reader = new FileReader()
+      reader.onload = async () => {
+        const dataUrl = reader.result as string
+        try {
+          const fallbackRes = await authApi.uploadAvatar(dataUrl)
+          const updatedAvatar = fallbackRes.user.avatar ?? dataUrl
+          setAvatarPreview(updatedAvatar)
+          onUpdateUser(currentUser || `@${username}`, updatedAvatar)
+          toast.success('AVATAR_UPDATED_SUCCESSFULLY')
+        } catch (innerErr: any) {
+          toast.error(`ERR: ${innerErr?.message || 'UPLOAD_FAILED'}`)
+          setAvatarPreview(userProfile?.avatar || currentAvatar || null)
+        } finally {
+          setAvatarUploading(false)
+        }
+      }
+      reader.onerror = () => {
+        toast.error('ERR: FILE_READ_ERROR')
         setAvatarUploading(false)
       }
-    }
-    reader.onerror = () => {
-      toast.error('ERR: FILE_READ_ERROR')
+      reader.readAsDataURL(file)
+      return
+    } finally {
       setAvatarUploading(false)
     }
-    reader.readAsDataURL(file)
   }
 
   // Handle Profile Save
@@ -317,10 +534,7 @@ export default function SettingsView({
         </div>
 
         {loading ? (
-          <div className={`py-20 flex flex-col items-center justify-center gap-3 font-mono text-xs ${isLight ? 'text-zinc-500' : 'text-zinc-600'}`}>
-            <div className={`w-5 h-5 border-2 rounded-full animate-spin ${isLight ? 'border-zinc-300 border-t-zinc-700' : 'border-zinc-800 border-t-zinc-400'}`} />
-            <span>LOADING_USER_DATA...</span>
-          </div>
+          <SettingsSkeleton isLight={isLight} />
         ) : (
           <div className="space-y-10">
             {/* ─── SECTION 1: USER IDENTITY & AVATAR ─────────────────── */}

@@ -9,11 +9,13 @@ const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
 interface SignUpViewProps {
   onBack: () => void
   onNavigateSignIn: () => void
+  onNavigateVerifyPending?: (email: string) => void
 }
 
 export default function SignUpView({
   onBack,
   onNavigateSignIn,
+  onNavigateVerifyPending,
 }: SignUpViewProps) {
   const [username, setUsername] = useState('')
   const [email, setEmail] = useState('')
@@ -128,14 +130,19 @@ export default function SignUpView({
         password,
       })
       
+      const targetEmail = result.pendingEmail || cleanEmail
       setFailedAttempts(0)
       setCooldownRemaining(0)
       toast.success('VERIFICATION_EMAIL_SENT')
       
-      // Navigate to verification pending screen
-      const encodedEmail = encodeURIComponent(result.pendingEmail || cleanEmail)
-      window.history.pushState({}, '', `/verify-email-pending?email=${encodedEmail}`)
-      window.dispatchEvent(new Event('popstate'))
+      // Immediately navigate to verification pending screen
+      if (onNavigateVerifyPending) {
+        onNavigateVerifyPending(targetEmail)
+      } else {
+        const encodedEmail = encodeURIComponent(targetEmail)
+        window.history.pushState({}, '', `/verify-email-pending?email=${encodedEmail}`)
+        window.dispatchEvent(new Event('popstate'))
+      }
 
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'REGISTRATION_FAILED'
