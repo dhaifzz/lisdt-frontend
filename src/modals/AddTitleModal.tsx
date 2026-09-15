@@ -37,7 +37,7 @@ export default function AddTitleModal({
   const [rating, setRating] = useState('')
   const [topRank, setTopRank] = useState<number | null>(null)
   const [coverErr, setCoverErr] = useState(false)
-  const [coverMode, setCoverMode] = useState<'url' | 'upload'>('url')
+  const [coverMode, setCoverMode] = useState<'upload' | 'url'>('upload')
   const [isUploadingCover, setIsUploadingCover] = useState(false)
 
   // Map of rank number -> other title currently occupying that rank
@@ -65,7 +65,7 @@ export default function AddTitleModal({
 
     setIsUploadingCover(true)
     try {
-      const res = await uploadApi.uploadCover(file)
+      const res = await uploadApi.uploadCover(file, cover)
       setCover(res.url)
       setCoverErr(false)
       toast.success('COVER_UPLOADED')
@@ -470,6 +470,9 @@ export default function AddTitleModal({
                     <button
                       type="button"
                       onClick={() => {
+                        if (cover) {
+                          uploadApi.deleteCover(cover).catch(() => {})
+                        }
                         setCover('')
                         setCoverErr(false)
                       }}
@@ -487,7 +490,7 @@ export default function AddTitleModal({
 
                 {/* Mode toggle */}
                 <div className="flex mb-1.5">
-                  {(['url', 'upload'] as const).map(mode => (
+                  {(['upload', 'url'] as const).map(mode => (
                     <button
                       key={mode}
                       type="button"
@@ -502,7 +505,7 @@ export default function AddTitleModal({
                           : 'border-zinc-800 bg-[#080808] text-zinc-500 hover:border-zinc-600 hover:text-zinc-300'
                       }`}
                     >
-                      {mode === 'url' ? 'LINK_URL' : 'UPLOAD_FILE'}
+                      {mode === 'upload' ? 'UPLOAD_FILE' : 'LINK_URL'}
                     </button>
                   ))}
                 </div>
@@ -510,12 +513,12 @@ export default function AddTitleModal({
                 {coverMode === 'url' ? (
                   <input
                     type="url"
-                    value={cover.startsWith('data:') ? '' : cover}
+                    value={cover.includes('supabase.co') || cover.includes('/uploads/') || cover.startsWith('data:') ? '' : cover}
                     onChange={e => {
                       setCover(e.target.value)
                       setCoverErr(false)
                     }}
-                    placeholder="https://... (leave empty for default)"
+                    placeholder="https://... (paste image link)"
                     className={`w-full font-mono text-xs px-3 py-2 outline-none transition-colors border ${
                       isLight
                         ? 'bg-zinc-50 border-zinc-300 focus:border-zinc-800 text-zinc-900 placeholder-zinc-400'

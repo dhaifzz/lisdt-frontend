@@ -145,9 +145,34 @@ export function MediaCard({
           </div>
         )}
 
-        {/* Hover overlay with [ EDIT edit icon ] at bottom center (middle bottom) */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-end justify-center pb-2.5 px-2 pointer-events-none">
-          <div className={`flex items-center gap-1 font-mono text-[10px] backdrop-blur-xs border px-2 py-0.5 transition-transform duration-200 transform translate-y-1 group-hover:translate-y-0 select-none ${
+        {/* Status & count banner on bottom of poster */}
+        <div className={`absolute bottom-0 inset-x-0 backdrop-blur-xs border-t px-2 py-1 flex items-center justify-between pointer-events-none select-none z-10 ${
+          isLight ? 'bg-white/95 border-zinc-200/90 shadow-xs' : 'bg-black/85 border-zinc-800/90'
+        }`}>
+          <span className={`font-mono text-[9px] font-bold tracking-wider shrink-0 ${
+            isLight ? status.textLight : status.text
+          }`}>
+            {status.label}
+          </span>
+          <span className={`font-mono text-[9px] font-semibold flex items-center gap-1 shrink-0 ${
+            isLight ? 'text-zinc-700' : 'text-zinc-300'
+          }`}>
+            {isMovie ? (
+              (anime.parts ?? 1) > 1 ? `${anime.parts}P` : 'FILM'
+            ) : (
+              <>
+                {anime.seasonsFinished > 0 && `${anime.seasonsFinished}S`}
+                {(anime.moviesCount ?? 0) > 0 && (
+                  <span className="text-amber-500 font-bold">+{anime.moviesCount}M</span>
+                )}
+              </>
+            )}
+          </span>
+        </div>
+
+        {/* Hover overlay with [ EDIT edit icon ] */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center pointer-events-none z-20">
+          <div className={`flex items-center gap-1 font-mono text-[10px] backdrop-blur-xs border px-2.5 py-1 transition-transform duration-200 transform translate-y-1 group-hover:translate-y-0 select-none ${
             isLight
               ? 'bg-white/95 border-zinc-300 text-zinc-900 shadow-md'
               : 'bg-[#080808]/95 border-zinc-700/80 text-zinc-200 shadow-[0_2px_12px_rgba(0,0,0,0.9)]'
@@ -182,14 +207,16 @@ export function MediaCard({
         }`}>
           {anime.title}
         </p>
-        <p className={`font-mono text-[10px] truncate ${isLight ? 'text-zinc-500' : 'text-zinc-600'}`}>
-          {anime.year}
-          <span className={`mx-1.5 ${isLight ? 'text-zinc-300' : 'text-zinc-800'}`}>·</span>
+        <div className={`flex flex-wrap items-center gap-x-1.5 gap-y-0.5 font-mono text-[10px] leading-tight ${
+          isLight ? 'text-zinc-500' : 'text-zinc-400'
+        }`}>
+          <span>{anime.year}</span>
+          <span className={`select-none ${isLight ? 'text-zinc-300' : 'text-zinc-800'}`}>·</span>
           <span className={isLight ? status.textLight : status.text}>{status.label}</span>
           {isMovie ? (
             <>
-              <span className={`mx-1.5 ${isLight ? 'text-zinc-300' : 'text-zinc-800'}`}>·</span>
-              <span className={isLight ? 'text-zinc-600' : 'text-zinc-400'}>
+              <span className={`select-none ${isLight ? 'text-zinc-300' : 'text-zinc-800'}`}>·</span>
+              <span className={`whitespace-nowrap shrink-0 ${isLight ? 'text-zinc-600' : 'text-zinc-400'}`}>
                 {(anime.parts ?? 1) > 1 ? `${anime.parts} Parts` : 'Film'}
               </span>
             </>
@@ -197,21 +224,23 @@ export function MediaCard({
             <>
               {anime.seasonsFinished > 0 && (
                 <>
-                  <span className={`mx-1.5 ${isLight ? 'text-zinc-300' : 'text-zinc-800'}`}>·</span>
-                  <span className={isLight ? 'text-zinc-600' : 'text-zinc-400'}>S{anime.seasonsFinished}</span>
+                  <span className={`select-none ${isLight ? 'text-zinc-300' : 'text-zinc-800'}`}>·</span>
+                  <span className={`whitespace-nowrap shrink-0 ${isLight ? 'text-zinc-600' : 'text-zinc-400'}`}>
+                    S{anime.seasonsFinished}
+                  </span>
                 </>
               )}
               {(anime.moviesCount ?? 0) > 0 && (
                 <>
-                  <span className={`mx-1 ${isLight ? 'text-zinc-300' : 'text-zinc-800'}`}>·</span>
-                  <span className="text-amber-500 font-medium">
-                    +{anime.moviesCount}M
+                  <span className={`select-none ${isLight ? 'text-zinc-300' : 'text-zinc-800'}`}>·</span>
+                  <span className="text-amber-500 font-bold whitespace-nowrap shrink-0">
+                    +{anime.moviesCount} {anime.moviesCount === 1 ? 'Movie' : 'Movies'}
                   </span>
                 </>
               )}
             </>
           )}
-        </p>
+        </div>
       </div>
     </div>
   )

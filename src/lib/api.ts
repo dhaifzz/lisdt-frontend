@@ -245,10 +245,13 @@ export const mediaApi = {
 // --- Upload ------------------------------------------------------------------
 
 export const uploadApi = {
-  uploadCover: async (file: File): Promise<{ url: string; message: string }> => {
+  uploadCover: async (file: File, previousUrl?: string): Promise<{ url: string; message: string }> => {
     const token = getToken()
     const formData = new FormData()
     formData.append('image', file)
+    if (previousUrl && !previousUrl.startsWith('data:')) {
+      formData.append('previousUrl', previousUrl)
+    }
 
     const res = await fetch(`${BASE_URL}/upload/cover`, {
       method: 'POST',
@@ -264,6 +267,19 @@ export const uploadApi = {
     }
 
     return data
+  },
+
+  deleteCover: async (url: string): Promise<boolean> => {
+    if (!url || url.startsWith('data:')) return false
+    try {
+      const res = await apiFetch<{ success: boolean; deleted: boolean }>('/upload/delete', {
+        method: 'POST',
+        body: JSON.stringify({ url }),
+      })
+      return res.deleted
+    } catch {
+      return false
+    }
   },
 }
 

@@ -64,9 +64,7 @@ export default function EditAnimeView({
   const [category, setCategory] = useState<MediaCategory>(anime.category || 'anime')
   const [title, setTitle] = useState(anime.title)
   const [cover, setCover] = useState(anime.cover?.includes('photo-1578632767115-351597cf2477') ? '' : (anime.cover || ''))
-  const [coverMode, setCoverMode] = useState<'url' | 'upload'>(
-    anime.cover && anime.cover.startsWith('data:') ? 'upload' : 'url'
-  )
+  const [coverMode, setCoverMode] = useState<'upload' | 'url'>('upload')
   const [seasonsFinished, setSeasonsFinished] = useState(anime.seasonsFinished ?? (anime.category === 'movies' ? 0 : 1))
   const [parts, setParts] = useState(anime.parts ?? 1)
   const [moviesCount, setMoviesCount] = useState(anime.moviesCount ?? 0)
@@ -102,7 +100,7 @@ export default function EditAnimeView({
 
     setIsUploadingCover(true)
     try {
-      const res = await uploadApi.uploadCover(file)
+      const res = await uploadApi.uploadCover(file, cover)
       setCover(res.url)
       setCoverErr(false)
       setCoverMode('upload')
@@ -311,22 +309,24 @@ export default function EditAnimeView({
               )}
 
               {/* Status banner preview */}
-              <div className={`absolute bottom-0 inset-x-0 backdrop-blur-xs border-t px-3 py-1.5 flex items-center justify-between ${
+              <div className={`absolute bottom-0 inset-x-0 backdrop-blur-xs border-t px-2.5 py-1.5 flex items-center justify-between pointer-events-none select-none ${
                 isLight ? 'bg-white/95 border-zinc-200 shadow-xs' : 'bg-black/80 border-zinc-800'
               }`}>
-                <span className={`font-mono text-[9px] font-bold tracking-widest ${
+                <span className={`font-mono text-[9px] font-bold tracking-widest shrink-0 ${
                   isLight ? STATUS_MAP[status].textLight : STATUS_MAP[status].text
                 }`}>
                   {STATUS_MAP[status].label}
                 </span>
                 {isMovie ? (
-                  <span className={`font-mono text-[9px] ${isLight ? 'text-zinc-600' : 'text-zinc-400'}`}>
+                  <span className={`font-mono text-[9px] shrink-0 ${isLight ? 'text-zinc-600' : 'text-zinc-400'}`}>
                     {parts > 1 ? `${parts} PARTS` : 'FILM'}
                   </span>
                 ) : (
-                  <span className={`font-mono text-[9px] ${isLight ? 'text-zinc-600' : 'text-zinc-400'}`}>
+                  <span className={`font-mono text-[9px] shrink-0 font-semibold flex items-center gap-1 ${isLight ? 'text-zinc-600' : 'text-zinc-400'}`}>
                     {seasonsFinished > 0 && `${seasonsFinished}S`}
-                    {moviesCount > 0 && ` +${moviesCount}M`}
+                    {moviesCount > 0 && (
+                      <span className="text-amber-500 font-bold">+{moviesCount}M</span>
+                    )}
                   </span>
                 )}
               </div>
@@ -487,7 +487,7 @@ export default function EditAnimeView({
 
               {/* Mode toggle + Clear Poster action */}
               <div className="flex flex-wrap items-center gap-2 mb-2">
-                {(['url', 'upload'] as const).map(mode => (
+                {(['upload', 'url'] as const).map(mode => (
                   <button
                     key={mode}
                     type="button"
@@ -502,7 +502,7 @@ export default function EditAnimeView({
                         : 'border-zinc-800 bg-[#080808] text-zinc-500 hover:border-zinc-600 hover:text-zinc-300'
                     }`}
                   >
-                    {mode === 'url' ? 'LINK_URL' : 'UPLOAD_FILE'}
+                    {mode === 'upload' ? 'UPLOAD_FILE' : 'LINK_URL'}
                   </button>
                 ))}
 
@@ -510,6 +510,9 @@ export default function EditAnimeView({
                   <button
                     type="button"
                     onClick={() => {
+                      if (cover) {
+                        uploadApi.deleteCover(cover).catch(() => {})
+                      }
                       setCover('')
                       setCoverErr(false)
                     }}
@@ -530,7 +533,7 @@ export default function EditAnimeView({
                 <div className="relative flex items-center">
                   <input
                     type="url"
-                    value={cover.startsWith('data:') ? '' : cover}
+                    value={cover.includes('supabase.co') || cover.includes('/uploads/') || cover.startsWith('data:') ? '' : cover}
                     onChange={e => {
                       setCover(e.target.value)
                       setCoverErr(false)
@@ -540,9 +543,9 @@ export default function EditAnimeView({
                         ? 'bg-zinc-50 border-zinc-300 focus:border-zinc-950 text-zinc-900 placeholder:text-zinc-400'
                         : 'bg-[#080808] border-zinc-800 focus:border-white text-zinc-300'
                     }`}
-                    placeholder="https://... (leave empty for default poster)"
+                    placeholder="https://... (paste image link)"
                   />
-                  {cover && !cover.startsWith('data:') && (
+                  {cover && !cover.includes('supabase.co') && !cover.includes('/uploads/') && !cover.startsWith('data:') && (
                     <button
                       type="button"
                       onClick={() => {
