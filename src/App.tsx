@@ -133,7 +133,7 @@ export default function App() {
   }, [currentRoute])
 
   const [filter, setFilter] = useState<FilterStatus>('all')
-  const [sort, setSort]     = useState<SortOption>('default')
+  const [sort, setSort]     = useState<SortOption>('rating')
   const [search, setSearch] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
 
@@ -287,22 +287,23 @@ export default function App() {
       list = list.filter(a => a.title.toLowerCase().includes(q))
     }
 
-    // Only prioritize Top 1-10 sequence in default view when no filter/search is active
-    // "prioritize the top 1 to top 10 (even the rating of the top 1 or top 5 are like the same) it must be sequence of top 1 to 10 (this is when no filter). Do not use this logic if filtered by name, rating or year."
-    const isUnfiltered = sort === 'default' && filter === 'all' && !search.trim()
+    // When sorting by rating with no active filters (status or search),
+    // prioritize Top 1 to Top 10 in exact sequence 1..10, followed by highest rated to lowest
+    const isDefaultRatingView = sort === 'rating' && filter === 'all' && !search.trim()
 
     list.sort((a, b) => {
-      if (isUnfiltered) {
+      if (isDefaultRatingView) {
         const rankA = a.topRank && a.topRank >= 1 && a.topRank <= 10 ? a.topRank : null
         const rankB = b.topRank && b.topRank >= 1 && b.topRank <= 10 ? b.topRank : null
 
+        // 1. Top 1-10 strictly prioritized in numerical sequence (1, 2, 3... 10)
         if (rankA !== null && rankB !== null) {
-          return rankA - rankB // Strict 1, 2, 3... 10 sequence
+          return rankA - rankB
         }
         if (rankA !== null) return -1
         if (rankB !== null) return 1
 
-        // Rest of titles ordered by rating descending, then year, then name
+        // 2. All other titles ordered by highest rated to lowest, then year, then name
         const ratingDiff = (b.rating ?? 0) - (a.rating ?? 0)
         if (ratingDiff !== 0) return ratingDiff
         const yearDiff = b.year - a.year
@@ -310,8 +311,8 @@ export default function App() {
         return a.title.localeCompare(b.title)
       }
 
-      // Explicit sort by rating (or filtered with default sort):
-      if (sort === 'rating' || sort === 'default') {
+      // Explicit sort by rating (when filtered by status or search):
+      if (sort === 'rating') {
         const ratingDiff = (b.rating ?? 0) - (a.rating ?? 0)
         if (ratingDiff !== 0) return ratingDiff
         return a.title.localeCompare(b.title)
@@ -340,7 +341,7 @@ export default function App() {
     setCurrentPage(1)
     setSearch('')
     setFilter('all')
-    setSort('default')
+    setSort('rating')
   }
 
   const handleFilter = (f: FilterStatus) => {
@@ -763,8 +764,8 @@ export default function App() {
                   <span>SYNCHRONIZING</span>
                 </div>
 
-                {/* Media Grid Skeleton - 2 cols on mobile for bigger posters, 4-6 on larger screens */}
-                <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3 sm:gap-4">
+                {/* Media Grid Skeleton - 3 cols on mobile, 4-6 on larger screens */}
+                <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-2 sm:gap-4">
                   {Array.from({ length: 12 }).map((_, i) => (
                     <MediaCardSkeleton key={i} index={i} isLight={isLight} />
                   ))}
@@ -784,8 +785,8 @@ export default function App() {
                   <span>50 / PAGE · CLICK TO EDIT</span>
                 </div>
 
-                {/* Media Grid - 2 cols on mobile for bigger posters, 4-6 on larger screens */}
-                <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3 sm:gap-4">
+                {/* Media Grid - 3 cols on mobile, 4-6 on larger screens */}
+                <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-2 sm:gap-4">
                   {paginatedList.map((anime, i) => (
                     <MediaCard
                       key={anime.id}
