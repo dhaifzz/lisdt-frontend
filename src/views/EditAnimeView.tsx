@@ -131,8 +131,8 @@ export default function EditAnimeView({
       toast.error('ERR: TITLE_REQUIRED')
       return
     }
-    if (cleanTitle.length > 80) {
-      toast.error('ERR: TITLE_EXCEEDS_80_CHARACTERS')
+    if (cleanTitle.length > 200) {
+      toast.error('ERR: TITLE_EXCEEDS_200_CHARACTERS')
       return
     }
 
@@ -359,23 +359,23 @@ export default function EditAnimeView({
                   TITLE *
                 </label>
                 <span className={`font-mono text-[10px] ${
-                  title.length > 70 ? 'text-amber-500 font-bold' : isLight ? 'text-zinc-400' : 'text-zinc-600'
+                  title.length > 180 ? 'text-amber-500 font-bold' : isLight ? 'text-zinc-400' : 'text-zinc-600'
                 }`}>
-                  {title.length}/80
+                  {title.length}/200
                 </span>
               </div>
               <input
                 type="text"
                 value={title}
                 onChange={e => setTitle(e.target.value)}
-                maxLength={80}
+                maxLength={200}
                 required
                 className={`w-full font-medium text-sm px-3.5 py-2.5 outline-none transition-colors border ${
                   isLight
                     ? 'bg-zinc-50 border-zinc-300 focus:border-zinc-950 text-zinc-950 placeholder:text-zinc-400'
                     : 'bg-[#080808] border-zinc-800 focus:border-white text-white'
                 }`}
-                placeholder="Enter title (max 80 chars)..."
+                placeholder="Enter title (max 200 chars)..."
               />
             </div>
 

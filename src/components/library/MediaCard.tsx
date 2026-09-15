@@ -118,7 +118,7 @@ export function MediaCard({
           }`}>
             {/* Prominent Center Title Typography Poster */}
             <div className="text-center flex flex-col items-center justify-center px-2">
-              <span className={`font-bold font-sans text-xs sm:text-sm md:text-base leading-tight uppercase tracking-tight line-clamp-4 ${
+              <span className={`font-bold font-sans text-xs sm:text-sm md:text-base leading-tight uppercase tracking-tight break-words ${
                 isLight ? 'text-zinc-900' : 'text-zinc-100'
               }`}>
                 {anime.title || 'UNTITLED'}
@@ -178,8 +178,8 @@ export function MediaCard({
       </div>
 
       {/* Info below poster */}
-      <div className="pt-2 space-y-0.5">
-        <p className={`text-xs sm:text-[13px] font-medium leading-snug line-clamp-2 transition-colors ${
+      <div className="pt-1.5 min-[400px]:pt-2 space-y-0.5">
+        <p className={`text-[11px] min-[400px]:text-xs sm:text-[13px] font-medium leading-snug break-words transition-colors ${
           isLight
             ? 'text-zinc-900 group-hover:text-black font-semibold'
             : 'text-white group-hover:text-zinc-200'

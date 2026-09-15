@@ -127,8 +127,8 @@ export default function AddTitleModal({
       toast.error('ERR: TITLE_REQUIRED')
       return
     }
-    if (cleanTitle.length > 80) {
-      toast.error('ERR: TITLE_EXCEEDS_80_CHARACTERS')
+    if (cleanTitle.length > 200) {
+      toast.error('ERR: TITLE_EXCEEDS_200_CHARACTERS')
       return
     }
 
@@ -346,18 +346,18 @@ export default function AddTitleModal({
                     {isMovie ? 'MOVIE_TITLE' : 'SERIES_TITLE'} *
                   </label>
                   <span className={`font-mono text-[9px] ${
-                    title.length > 70 ? 'text-amber-500 font-bold' : isLight ? 'text-zinc-400' : 'text-zinc-600'
+                    title.length > 180 ? 'text-amber-500 font-bold' : isLight ? 'text-zinc-400' : 'text-zinc-600'
                   }`}>
-                    {title.length}/80
+                    {title.length}/200
                   </span>
                 </div>
                 <input
                   type="text"
                   value={title}
                   onChange={e => setTitle(e.target.value)}
-                  maxLength={80}
+                  maxLength={200}
                   required
-                  placeholder={isMovie ? "e.g. Blade Runner 2049 (max 80 chars)" : "e.g. Steins;Gate (max 80 chars)"}
+                  placeholder={isMovie ? "e.g. Blade Runner 2049 (max 200 chars)" : "e.g. Steins;Gate (max 200 chars)"}
                   className={`w-full font-medium text-xs sm:text-sm px-3 py-2 outline-none transition-colors border ${
                     isLight
                       ? 'bg-zinc-50 border-zinc-300 focus:border-zinc-800 text-zinc-900 placeholder-zinc-400'
