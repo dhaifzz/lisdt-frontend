@@ -80,7 +80,7 @@ export function Controls({
   return (
     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
       {/* Filter tabs */}
-      <div className={`flex items-stretch border w-full sm:w-fit overflow-x-auto scrollbar-none transition-colors ${
+      <div className={`flex items-stretch border w-full sm:w-fit overflow-x-auto scrollbar-none transition-colors touch-pan-x ${
         isLight ? 'border-zinc-300 bg-white shadow-xs' : 'border-zinc-900 bg-transparent'
       }`}>
         {tabs.map(({ v, label }) => (

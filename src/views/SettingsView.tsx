@@ -269,7 +269,7 @@ export default function SettingsView({
 
   return (
     <div
-      className={`min-h-screen flex flex-col justify-between overflow-x-clip relative transition-colors duration-200 ${
+      className={`min-h-screen flex flex-col justify-between overflow-x-hidden relative transition-colors duration-200 ${
         isLight
           ? 'bg-[#f5f5f7] text-zinc-900 selection:bg-zinc-900 selection:text-white'
           : 'bg-[#080808] text-white selection:bg-white selection:text-black'

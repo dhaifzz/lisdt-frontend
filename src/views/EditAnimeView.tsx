@@ -196,7 +196,7 @@ export default function EditAnimeView({
       isLight ? 'bg-[#f5f5f7] text-zinc-900' : 'bg-[#080808] text-white'
     }`}>
       {/* Top sticky navigation bar */}
-      <div className={`sticky top-0 z-50 border-b backdrop-blur-md transition-colors duration-200 ${
+      <div className={`sticky top-0 z-50 border-b backdrop-blur-md transform-gpu transition-colors duration-200 ${
         isLight ? 'border-zinc-200 bg-[#f5f5f7]/95' : 'border-zinc-900 bg-[#080808]/95'
       }`}>
         <div className="max-w-5xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">

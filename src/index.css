@@ -14,11 +14,18 @@
 
 html {
   color-scheme: dark;
-  scroll-behavior: smooth;
   scrollbar-width: thin;
   scrollbar-color: #3f3f46 #090909;
-  overflow-x: clip;
-  max-width: 100vw;
+  overflow-x: hidden;
+  max-width: 100%;
+  -webkit-overflow-scrolling: touch;
+  -webkit-text-size-adjust: 100%;
+}
+
+@media (min-width: 768px) {
+  html {
+    scroll-behavior: smooth;
+  }
 }
 
 body {
@@ -26,12 +33,15 @@ body {
   color: #e8e8e8;
   font-family: 'Inter', sans-serif;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   color-scheme: dark;
-  overflow-x: clip;
-  max-width: 100vw;
+  overflow-x: hidden;
+  max-width: 100%;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
 }
 
-/* Subtle dot grid background */
+/* Subtle dot grid background - isolated on GPU layer to prevent scroll repaints */
 body::before {
   content: '';
   position: fixed;
@@ -40,6 +50,11 @@ body::before {
   background-size: 28px 28px;
   pointer-events: none;
   z-index: 0;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  will-change: transform;
 }
 
 #root {
@@ -91,6 +106,8 @@ body::before {
 .scrollbar-none {
   scrollbar-width: none;
   -ms-overflow-style: none;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
 }
 .scrollbar-none::-webkit-scrollbar {
   display: none;
@@ -135,15 +152,21 @@ body::before {
   animation: flicker 6s infinite;
 }
 
-/* Fade in */
+/* Fade in - GPU accelerated transform */
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(8px); }
-  to   { opacity: 1; transform: none; }
+  from { opacity: 0; transform: translate3d(0, 6px, 0); }
+  to   { opacity: 1; transform: translate3d(0, 0, 0); }
 }
 
 .fade-in {
-  animation: fadeIn 0.3s ease forwards;
+  animation: fadeIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   opacity: 0;
+}
+
+@media (max-width: 640px) {
+  .fade-in {
+    animation-duration: 0.12s;
+  }
 }
 
 /* Row hover line */

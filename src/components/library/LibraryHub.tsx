@@ -84,7 +84,7 @@ export function LibraryHub({
       </div>
 
       {/* Library Cards Bar: horizontally scrollable on phone with snap, responsive grid on desktop */}
-      <div className="flex sm:grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-2.5 overflow-x-auto sm:overflow-x-visible pb-2 pt-0.5 scrollbar-none snap-x snap-mandatory">
+      <div className="flex sm:grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-2.5 overflow-x-auto sm:overflow-x-visible pb-2 pt-0.5 scrollbar-none snap-x snap-mandatory touch-pan-x">
         {isLoading ? (
           <>
             <LibraryCardSkeleton index={0} isLight={isLight} />

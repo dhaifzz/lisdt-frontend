@@ -62,7 +62,7 @@ export default function Header({
 
   return (
     <header
-      className={`sticky top-0 z-50 border-b transition-colors duration-200 backdrop-blur-md ${
+      className={`sticky top-0 z-50 border-b transition-colors duration-200 backdrop-blur-md transform-gpu ${
         isLight
           ? 'border-zinc-200 bg-white/95 text-zinc-900 shadow-xs'
           : 'border-zinc-900 bg-[#080808]/95 text-white'

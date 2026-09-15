@@ -61,7 +61,11 @@ export function MediaCard({
     <div
       onClick={() => onSelect(anime)}
       className="group flex flex-col fade-in cursor-pointer select-none"
-      style={{ animationDelay: `${(index % 50) * 15}ms` }}
+      style={{
+        animationDelay: `${(index % 50) * 12}ms`,
+        contentVisibility: 'auto',
+        containIntrinsicSize: 'auto 210px',
+      }}
     >
       {/* Poster */}
       <div
@@ -127,16 +131,16 @@ export function MediaCard({
         {anime.topRank && anime.topRank >= 1 && anime.topRank <= 10 && (
           <div className="absolute top-1.5 left-1.5 sm:top-2 sm:left-2 z-10 pointer-events-none select-none">
             <div
-              className={`flex items-center gap-0.5 sm:gap-1 px-1 sm:px-1.5 py-0.5 font-mono text-[8px] sm:text-[10px] font-bold tracking-wider border shadow-md backdrop-blur-md transition-transform duration-200 group-hover:scale-105 ${
+              className={`flex items-center gap-0.5 sm:gap-1 px-1 sm:px-1.5 py-0.5 font-mono text-[8px] sm:text-[10px] font-bold tracking-wider border shadow-md transition-transform duration-200 group-hover:scale-105 ${
                 anime.topRank === 1
                   ? 'bg-amber-500 text-black border-amber-300 shadow-amber-500/20 font-black'
                   : anime.topRank === 2
                   ? 'bg-zinc-200 text-zinc-950 border-white shadow-zinc-500/20 font-extrabold'
                   : anime.topRank === 3
-                  ? 'bg-amber-800/90 text-amber-100 border-amber-600/80 shadow-amber-700/20 font-extrabold'
+                  ? 'bg-amber-800/95 text-amber-100 border-amber-600/80 shadow-amber-700/20 font-extrabold'
                   : isLight
-                  ? 'bg-zinc-900/90 text-zinc-100 border-zinc-700 shadow-black/10'
-                  : 'bg-black/90 text-zinc-200 border-zinc-700/90 shadow-black/40'
+                  ? 'bg-zinc-900/95 text-zinc-100 border-zinc-700 shadow-black/10'
+                  : 'bg-black/95 text-zinc-200 border-zinc-700/90 shadow-black/40'
               }`}
             >
               <span className={`text-[7px] sm:text-[8px] font-mono leading-none ${anime.topRank <= 3 ? 'opacity-80' : 'text-zinc-400'}`}>TOP</span>

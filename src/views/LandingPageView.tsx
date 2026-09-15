@@ -19,7 +19,7 @@ export default function LandingPageView({
   onSignOut,
 }: LandingPageViewProps) {
   return (
-    <div className="min-h-screen bg-[#080808] text-white flex flex-col justify-between selection:bg-white selection:text-black relative overflow-x-clip">
+    <div className="min-h-screen bg-[#080808] text-white flex flex-col justify-between selection:bg-white selection:text-black relative overflow-x-hidden">
       {/* Background Ambient Cybernetic Lighting */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden select-none z-0">
         <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-white/[0.015] rounded-full blur-3xl" />
