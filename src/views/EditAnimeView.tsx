@@ -391,20 +391,24 @@ export default function EditAnimeView({
                   {rating !== '' ? (
                     <span className={`font-mono text-xs font-bold px-2 py-0.5 border whitespace-nowrap inline-flex items-center shrink-0 ${
                       isLight
-                        ? Number(rating) >= 9
-                          ? 'border-emerald-600 bg-emerald-50 text-emerald-700'
+                        ? Number(rating) === 10
+                          ? 'border-purple-600 bg-purple-50 text-purple-700 font-extrabold shadow-xs'
+                          : Number(rating) >= 9
+                          ? 'border-emerald-600 bg-emerald-50 text-emerald-700 font-bold'
                           : Number(rating) >= 7
-                          ? 'border-cyan-600 bg-cyan-50 text-cyan-700'
+                          ? 'border-cyan-600 bg-cyan-50 text-cyan-700 font-bold'
                           : Number(rating) >= 5
-                          ? 'border-amber-600 bg-amber-50 text-amber-700'
-                          : 'border-red-600 bg-red-50 text-red-700'
+                          ? 'border-amber-600 bg-amber-50 text-amber-700 font-bold'
+                          : 'border-red-600 bg-red-50 text-red-700 font-bold'
+                        : Number(rating) === 10
+                        ? 'border-purple-400/90 bg-purple-500/20 text-purple-300 font-extrabold shadow-[0_0_8px_rgba(168,85,247,0.35)]'
                         : Number(rating) >= 9
-                        ? 'border-emerald-500/60 bg-emerald-500/10 text-emerald-400'
+                        ? 'border-emerald-500/60 bg-emerald-500/10 text-emerald-400 font-bold'
                         : Number(rating) >= 7
-                        ? 'border-cyan-500/60 bg-cyan-500/10 text-cyan-400'
+                        ? 'border-cyan-500/60 bg-cyan-500/10 text-cyan-400 font-bold'
                         : Number(rating) >= 5
-                        ? 'border-yellow-500/60 bg-yellow-500/10 text-yellow-400'
-                        : 'border-red-500/60 bg-red-500/10 text-red-400'
+                        ? 'border-yellow-500/60 bg-yellow-500/10 text-yellow-400 font-bold'
+                        : 'border-red-500/60 bg-red-500/10 text-red-400 font-bold'
                     }`}>
                       {rating} / 10
                     </span>

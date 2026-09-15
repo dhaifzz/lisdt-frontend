@@ -5,15 +5,17 @@ import { isValidCoverUrl } from '../../lib/api'
 
 export function getRatingBadgeClass(rating: number, isLight: boolean): string {
   if (isLight) {
-    if (rating >= 9) return 'border-emerald-600 bg-emerald-50 text-emerald-700'
-    if (rating >= 7) return 'border-cyan-600 bg-cyan-50 text-cyan-700'
-    if (rating >= 5) return 'border-amber-600 bg-amber-50 text-amber-700'
-    return 'border-red-600 bg-red-50 text-red-700'
+    if (rating === 10) return 'border-purple-600 bg-purple-50 text-purple-700 font-extrabold shadow-xs'
+    if (rating >= 9) return 'border-emerald-600 bg-emerald-50 text-emerald-700 font-bold'
+    if (rating >= 7) return 'border-cyan-600 bg-cyan-50 text-cyan-700 font-bold'
+    if (rating >= 5) return 'border-amber-600 bg-amber-50 text-amber-700 font-bold'
+    return 'border-red-600 bg-red-50 text-red-700 font-bold'
   }
-  if (rating >= 9) return 'border-emerald-500/60 bg-emerald-500/10 text-emerald-400'
-  if (rating >= 7) return 'border-cyan-500/60 bg-cyan-500/10 text-cyan-400'
-  if (rating >= 5) return 'border-yellow-500/60 bg-yellow-500/10 text-yellow-400'
-  return 'border-red-500/60 bg-red-500/10 text-red-400'
+  if (rating === 10) return 'border-purple-400/90 bg-purple-500/20 text-purple-300 font-extrabold shadow-[0_0_8px_rgba(168,85,247,0.35)]'
+  if (rating >= 9) return 'border-emerald-500/60 bg-emerald-500/10 text-emerald-400 font-bold'
+  if (rating >= 7) return 'border-cyan-500/60 bg-cyan-500/10 text-cyan-400 font-bold'
+  if (rating >= 5) return 'border-yellow-500/60 bg-yellow-500/10 text-yellow-400 font-bold'
+  return 'border-red-500/60 bg-red-500/10 text-red-400 font-bold'
 }
 
 export function MediaCard({
@@ -191,7 +193,7 @@ export function MediaCard({
       </div>
 
       {/* Info below poster */}
-      <div className="pt-1.5 min-[400px]:pt-2 space-y-0.5">
+      <div className="pt-1.5 min-[400px]:pt-2 space-y-1">
         <p className={`text-[11px] min-[400px]:text-xs sm:text-[13px] font-medium leading-snug break-words transition-colors ${
           isLight
             ? 'text-zinc-900 group-hover:text-black font-semibold'
@@ -200,7 +202,7 @@ export function MediaCard({
           <span>{anime.title}</span>
           {anime.rating !== null && anime.rating !== undefined && anime.rating > 0 && (
             <span
-              className={`inline-flex items-center gap-0.5 ml-1.5 px-1 py-0.5 rounded-xs font-mono text-[9px] sm:text-[10px] font-bold border align-middle tracking-tight select-none shadow-2xs ${
+              className={`inline-flex items-center gap-0.5 ml-1.5 px-1 py-0.5 rounded-xs font-mono text-[9px] sm:text-[10px] border align-middle tracking-tight select-none shadow-2xs ${
                 getRatingBadgeClass(anime.rating, isLight)
               }`}
             >
@@ -209,38 +211,43 @@ export function MediaCard({
             </span>
           )}
         </p>
-        <div className={`flex flex-wrap items-center gap-x-1.5 gap-y-0.5 font-mono text-[9.5px] sm:text-[10px] leading-tight ${
-          isLight ? 'text-zinc-500' : 'text-zinc-400'
-        }`}>
-          <span>{anime.year}</span>
-          <span className={`select-none ${isLight ? 'text-zinc-300' : 'text-zinc-800'}`}>·</span>
-          <span className={isLight ? status.textLight : status.text}>{status.label}</span>
+
+        {/* Clean, readable structured metadata */}
+        <div className="space-y-0.5 font-mono text-[9.5px] min-[400px]:text-[10px] leading-normal">
+          {/* Row 1: Year & Status indicator */}
+          <div className={`flex items-center gap-1.5 ${isLight ? 'text-zinc-500' : 'text-zinc-400'}`}>
+            <span>{anime.year}</span>
+            <span className={`select-none ${isLight ? 'text-zinc-300' : 'text-zinc-800'}`}>·</span>
+            <span className={isLight ? status.textLight : status.text}>
+              {status.label}
+            </span>
+          </div>
+
+          {/* Row 2: Content progress (Seasons / Movies / Parts) */}
           {isMovie ? (
-            <span className="inline-flex items-center gap-1.5 whitespace-nowrap shrink-0">
-              <span className={`select-none ${isLight ? 'text-zinc-300' : 'text-zinc-800'}`}>·</span>
-              <span className={isLight ? 'text-zinc-600' : 'text-zinc-400'}>
+            <div className={`flex items-center gap-1.5 ${isLight ? 'text-zinc-600' : 'text-zinc-400'}`}>
+              <span className="font-medium">
                 {(anime.parts ?? 1) > 1 ? `${anime.parts} Parts` : 'Film'}
               </span>
-            </span>
+            </div>
           ) : (
-            <>
-              {anime.seasonsFinished > 0 && (
-                <span className="inline-flex items-center gap-1.5 whitespace-nowrap shrink-0">
-                  <span className={`select-none ${isLight ? 'text-zinc-300' : 'text-zinc-800'}`}>·</span>
-                  <span className={isLight ? 'text-zinc-600' : 'text-zinc-400'}>
+            (anime.seasonsFinished > 0 || (anime.moviesCount ?? 0) > 0) && (
+              <div className="flex items-center gap-1.5">
+                {anime.seasonsFinished > 0 && (
+                  <span className={`font-semibold ${isLight ? 'text-zinc-700' : 'text-zinc-300'}`}>
                     S{anime.seasonsFinished}
                   </span>
-                </span>
-              )}
-              {(anime.moviesCount ?? 0) > 0 && (
-                <span className="inline-flex items-center gap-1.5 whitespace-nowrap shrink-0">
+                )}
+                {anime.seasonsFinished > 0 && (anime.moviesCount ?? 0) > 0 && (
                   <span className={`select-none ${isLight ? 'text-zinc-300' : 'text-zinc-800'}`}>·</span>
-                  <span className="text-amber-500 font-bold">
+                )}
+                {(anime.moviesCount ?? 0) > 0 && (
+                  <span className="text-amber-500 font-bold whitespace-nowrap">
                     +{anime.moviesCount} {anime.moviesCount === 1 ? 'Movie' : 'Movies'}
                   </span>
-                </span>
-              )}
-            </>
+                )}
+              </div>
+            )
           )}
         </div>
       </div>
