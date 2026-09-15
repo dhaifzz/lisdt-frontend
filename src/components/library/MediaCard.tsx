@@ -64,7 +64,7 @@ export function MediaCard({
       style={{
         animationDelay: `${(index % 50) * 12}ms`,
         contentVisibility: 'auto',
-        containIntrinsicSize: 'auto 210px',
+        containIntrinsicSize: 'auto 290px',
       }}
     >
       {/* Poster */}
@@ -178,15 +178,15 @@ export function MediaCard({
       </div>
 
       {/* Info below poster */}
-      <div className="pt-1.5 sm:pt-2 space-y-0.5">
-        <p className={`text-[11px] sm:text-[12px] font-medium leading-snug line-clamp-2 transition-colors ${
+      <div className="pt-2 space-y-0.5">
+        <p className={`text-xs sm:text-[13px] font-medium leading-snug line-clamp-2 transition-colors ${
           isLight
             ? 'text-zinc-900 group-hover:text-black font-semibold'
             : 'text-white group-hover:text-zinc-200'
         }`}>
           {anime.title}
         </p>
-        <div className={`flex flex-wrap items-center gap-x-1 sm:gap-x-1.5 gap-y-0.5 font-mono text-[9px] sm:text-[10px] leading-tight ${
+        <div className={`flex flex-wrap items-center gap-x-1.5 gap-y-0.5 font-mono text-[9.5px] sm:text-[10px] leading-tight ${
           isLight ? 'text-zinc-500' : 'text-zinc-400'
         }`}>
           <span>{anime.year}</span>
