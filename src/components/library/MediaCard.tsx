@@ -3,6 +3,19 @@ import { Anime, LibraryCategory } from '../../types'
 import { STATUS_MAP } from '../../types'
 import { isValidCoverUrl } from '../../lib/api'
 
+export function getRatingBadgeClass(rating: number, isLight: boolean): string {
+  if (isLight) {
+    if (rating >= 9) return 'border-emerald-600 bg-emerald-50 text-emerald-700'
+    if (rating >= 7) return 'border-cyan-600 bg-cyan-50 text-cyan-700'
+    if (rating >= 5) return 'border-amber-600 bg-amber-50 text-amber-700'
+    return 'border-red-600 bg-red-50 text-red-700'
+  }
+  if (rating >= 9) return 'border-emerald-500/60 bg-emerald-500/10 text-emerald-400'
+  if (rating >= 7) return 'border-cyan-500/60 bg-cyan-500/10 text-cyan-400'
+  if (rating >= 5) return 'border-yellow-500/60 bg-yellow-500/10 text-yellow-400'
+  return 'border-red-500/60 bg-red-500/10 text-red-400'
+}
+
 export function MediaCard({
   anime,
   index,
@@ -184,7 +197,17 @@ export function MediaCard({
             ? 'text-zinc-900 group-hover:text-black font-semibold'
             : 'text-white group-hover:text-zinc-200'
         }`}>
-          {anime.title}
+          <span>{anime.title}</span>
+          {anime.rating !== null && anime.rating !== undefined && anime.rating > 0 && (
+            <span
+              className={`inline-flex items-center gap-0.5 ml-1.5 px-1 py-0.5 rounded-xs font-mono text-[9px] sm:text-[10px] font-bold border align-middle tracking-tight select-none shadow-2xs ${
+                getRatingBadgeClass(anime.rating, isLight)
+              }`}
+            >
+              <span className="text-[7.5px] sm:text-[8px] leading-none opacity-90">★</span>
+              <span>{anime.rating}</span>
+            </span>
+          )}
         </p>
         <div className={`flex flex-wrap items-center gap-x-1.5 gap-y-0.5 font-mono text-[9.5px] sm:text-[10px] leading-tight ${
           isLight ? 'text-zinc-500' : 'text-zinc-400'
@@ -193,29 +216,29 @@ export function MediaCard({
           <span className={`select-none ${isLight ? 'text-zinc-300' : 'text-zinc-800'}`}>·</span>
           <span className={isLight ? status.textLight : status.text}>{status.label}</span>
           {isMovie ? (
-            <>
+            <span className="inline-flex items-center gap-1.5 whitespace-nowrap shrink-0">
               <span className={`select-none ${isLight ? 'text-zinc-300' : 'text-zinc-800'}`}>·</span>
-              <span className={`whitespace-nowrap shrink-0 ${isLight ? 'text-zinc-600' : 'text-zinc-400'}`}>
+              <span className={isLight ? 'text-zinc-600' : 'text-zinc-400'}>
                 {(anime.parts ?? 1) > 1 ? `${anime.parts} Parts` : 'Film'}
               </span>
-            </>
+            </span>
           ) : (
             <>
               {anime.seasonsFinished > 0 && (
-                <>
+                <span className="inline-flex items-center gap-1.5 whitespace-nowrap shrink-0">
                   <span className={`select-none ${isLight ? 'text-zinc-300' : 'text-zinc-800'}`}>·</span>
-                  <span className={`whitespace-nowrap shrink-0 ${isLight ? 'text-zinc-600' : 'text-zinc-400'}`}>
+                  <span className={isLight ? 'text-zinc-600' : 'text-zinc-400'}>
                     S{anime.seasonsFinished}
                   </span>
-                </>
+                </span>
               )}
               {(anime.moviesCount ?? 0) > 0 && (
-                <>
+                <span className="inline-flex items-center gap-1.5 whitespace-nowrap shrink-0">
                   <span className={`select-none ${isLight ? 'text-zinc-300' : 'text-zinc-800'}`}>·</span>
-                  <span className="text-amber-500 font-bold whitespace-nowrap shrink-0">
+                  <span className="text-amber-500 font-bold">
                     +{anime.moviesCount} {anime.moviesCount === 1 ? 'Movie' : 'Movies'}
                   </span>
-                </>
+                </span>
               )}
             </>
           )}
