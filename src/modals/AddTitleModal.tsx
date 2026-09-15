@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
-import { Anime, MediaCategory, CATEGORIES, STATUS_MAP } from '../types'
+import { Anime, MediaCategory, CATEGORIES } from '../types'
 import { useTheme } from '../context/ThemeContext'
 import { toast } from '../context/ToastContext'
 import { uploadApi, isValidCoverUrl } from '../lib/api'
@@ -333,25 +333,6 @@ export default function AddTitleModal({
                     </span>
                   </div>
                 )}
-
-                {/* Status footer */}
-                <div className={`absolute bottom-0 inset-x-0 px-1.5 py-1 flex items-center justify-between border-t ${
-                  isLight ? 'bg-white/95 border-zinc-200' : 'bg-black/80 border-zinc-800'
-                }`}>
-                  <span className={`font-mono text-[8px] font-bold ${isLight ? STATUS_MAP[status].textLight : STATUS_MAP[status].text}`}>
-                    {STATUS_MAP[status].label}
-                  </span>
-                  {isMovie ? (
-                    <span className={`font-mono text-[8px] ${isLight ? 'text-zinc-600' : 'text-zinc-400'}`}>
-                      {parts > 1 ? `${parts} PARTS` : 'FILM'}
-                    </span>
-                  ) : (
-                    <span className={`font-mono text-[8px] ${isLight ? 'text-zinc-600' : 'text-zinc-400'}`}>
-                      {seasonsFinished > 0 && `${seasonsFinished}S`}
-                      {moviesCount > 0 && ` +${moviesCount}M`}
-                    </span>
-                  )}
-                </div>
               </div>
               <span className={`font-mono text-[8px] ${isLight ? 'text-zinc-500' : 'text-zinc-600'}`}>LIVE_CARD</span>
             </div>

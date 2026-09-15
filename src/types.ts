@@ -31,7 +31,7 @@ export interface Anime {
 export type MediaItem = Anime
 
 export type FilterStatus = 'all' | 'watching' | 'watched' | 'stalled' | 'dropped'
-export type SortOption = 'rating' | 'year' | 'title'
+export type SortOption = 'default' | 'rating' | 'year' | 'title'
 
 export const STATUS_MAP: Record<Anime['status'], { label: string; dot: string; text: string; textLight: string }> = {
   watching: { label: 'WATCHING', dot: 'bg-emerald-400', text: 'text-emerald-400/80', textLight: 'text-emerald-700 font-medium' },

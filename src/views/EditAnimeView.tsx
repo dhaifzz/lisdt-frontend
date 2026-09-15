@@ -307,29 +307,6 @@ export default function EditAnimeView({
                   </span>
                 </div>
               )}
-
-              {/* Status banner preview */}
-              <div className={`absolute bottom-0 inset-x-0 backdrop-blur-xs border-t px-2.5 py-1.5 flex items-center justify-between pointer-events-none select-none ${
-                isLight ? 'bg-white/95 border-zinc-200 shadow-xs' : 'bg-black/80 border-zinc-800'
-              }`}>
-                <span className={`font-mono text-[9px] font-bold tracking-widest shrink-0 ${
-                  isLight ? STATUS_MAP[status].textLight : STATUS_MAP[status].text
-                }`}>
-                  {STATUS_MAP[status].label}
-                </span>
-                {isMovie ? (
-                  <span className={`font-mono text-[9px] shrink-0 ${isLight ? 'text-zinc-600' : 'text-zinc-400'}`}>
-                    {parts > 1 ? `${parts} PARTS` : 'FILM'}
-                  </span>
-                ) : (
-                  <span className={`font-mono text-[9px] shrink-0 font-semibold flex items-center gap-1 ${isLight ? 'text-zinc-600' : 'text-zinc-400'}`}>
-                    {seasonsFinished > 0 && `${seasonsFinished}S`}
-                    {moviesCount > 0 && (
-                      <span className="text-amber-500 font-bold">+{moviesCount}M</span>
-                    )}
-                  </span>
-                )}
-              </div>
             </div>
 
             <p className={`font-mono text-[10px] text-center sm:text-left ${isLight ? 'text-zinc-500' : 'text-zinc-600'}`}>

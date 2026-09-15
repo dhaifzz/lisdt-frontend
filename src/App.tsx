@@ -133,7 +133,7 @@ export default function App() {
   }, [currentRoute])
 
   const [filter, setFilter] = useState<FilterStatus>('all')
-  const [sort, setSort]     = useState<SortOption>('rating')
+  const [sort, setSort]     = useState<SortOption>('default')
   const [search, setSearch] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
 
@@ -286,9 +286,49 @@ export default function App() {
       const q = search.toLowerCase()
       list = list.filter(a => a.title.toLowerCase().includes(q))
     }
+
+    // Only prioritize Top 1-10 sequence in default view when no filter/search is active
+    // "prioritize the top 1 to top 10 (even the rating of the top 1 or top 5 are like the same) it must be sequence of top 1 to 10 (this is when no filter). Do not use this logic if filtered by name, rating or year."
+    const isUnfiltered = sort === 'default' && filter === 'all' && !search.trim()
+
     list.sort((a, b) => {
-      if (sort === 'rating') return (b.rating ?? 0) - (a.rating ?? 0)
-      if (sort === 'year')   return b.year - a.year
+      if (isUnfiltered) {
+        const rankA = a.topRank && a.topRank >= 1 && a.topRank <= 10 ? a.topRank : null
+        const rankB = b.topRank && b.topRank >= 1 && b.topRank <= 10 ? b.topRank : null
+
+        if (rankA !== null && rankB !== null) {
+          return rankA - rankB // Strict 1, 2, 3... 10 sequence
+        }
+        if (rankA !== null) return -1
+        if (rankB !== null) return 1
+
+        // Rest of titles ordered by rating descending, then year, then name
+        const ratingDiff = (b.rating ?? 0) - (a.rating ?? 0)
+        if (ratingDiff !== 0) return ratingDiff
+        const yearDiff = b.year - a.year
+        if (yearDiff !== 0) return yearDiff
+        return a.title.localeCompare(b.title)
+      }
+
+      // Explicit sort by rating (or filtered with default sort):
+      if (sort === 'rating' || sort === 'default') {
+        const ratingDiff = (b.rating ?? 0) - (a.rating ?? 0)
+        if (ratingDiff !== 0) return ratingDiff
+        return a.title.localeCompare(b.title)
+      }
+
+      // Explicit sort by year:
+      if (sort === 'year') {
+        const yearDiff = b.year - a.year
+        if (yearDiff !== 0) return yearDiff
+        return a.title.localeCompare(b.title)
+      }
+
+      // Explicit sort by name / title:
+      if (sort === 'title') {
+        return a.title.localeCompare(b.title)
+      }
+
       return a.title.localeCompare(b.title)
     })
     return list
@@ -300,6 +340,7 @@ export default function App() {
     setCurrentPage(1)
     setSearch('')
     setFilter('all')
+    setSort('default')
   }
 
   const handleFilter = (f: FilterStatus) => {

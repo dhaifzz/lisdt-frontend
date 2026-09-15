@@ -151,9 +151,10 @@ export function Controls({
               : 'bg-[#080808] border-zinc-900 hover:border-zinc-700 text-zinc-500'
           }`}
         >
+          <option value="default">DEFAULT</option>
           <option value="rating">BY_RATING</option>
           <option value="year">BY_YEAR</option>
-          <option value="title">BY_TITLE</option>
+          <option value="title">BY_NAME</option>
         </select>
       </div>
     </div>
