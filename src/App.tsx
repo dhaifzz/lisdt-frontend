@@ -765,8 +765,8 @@ export default function App() {
                   <span>SYNCHRONIZING</span>
                 </div>
 
-                {/* Media Grid Skeleton - strictly 2 cols on mobile, 3 on tablet, 4-6 on desktop */}
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4">
+                {/* Media Grid Skeleton - 3 cols on mobile with maximized width, 4-6 on desktop */}
+                <div className="-mx-1.5 sm:mx-0 grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-1.5 min-[400px]:gap-2 sm:gap-4">
                   {Array.from({ length: 12 }).map((_, i) => (
                     <MediaCardSkeleton key={i} index={i} isLight={isLight} />
                   ))}
@@ -786,8 +786,8 @@ export default function App() {
                   <span>50 / PAGE · CLICK TO EDIT</span>
                 </div>
 
-                {/* Media Grid - strictly 2 cols on mobile, 3 on tablet, 4-6 on desktop */}
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4">
+                {/* Media Grid - 3 cols on mobile with maximized width, 4-6 on desktop */}
+                <div className="-mx-1.5 sm:mx-0 grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-1.5 min-[400px]:gap-2 sm:gap-4">
                   {paginatedList.map((anime, i) => (
                     <MediaCard
                       key={anime.id}

@@ -64,7 +64,7 @@ export function MediaCard({
       style={{
         animationDelay: `${(index % 50) * 12}ms`,
         contentVisibility: 'auto',
-        containIntrinsicSize: 'auto 290px',
+        containIntrinsicSize: 'auto 235px',
       }}
     >
       {/* Poster */}
