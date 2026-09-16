@@ -56,6 +56,10 @@ export default function AddTitleModal({
   const handleAddSpinOff = () => {
     const trimmed = newSpinOff.trim()
     if (!trimmed) return
+    if (trimmed.length > 200) {
+      toast.error('ERR: SPINOFF_EXCEEDS_200_CHARACTERS')
+      return
+    }
     if (spinOffs.includes(trimmed)) {
       toast.error('Spin-off already added')
       return
@@ -776,14 +780,24 @@ export default function AddTitleModal({
                       <label className={`block font-mono text-[9px] tracking-wider ${isLight ? 'text-zinc-600' : 'text-zinc-400'}`}>
                         SPIN_OFFS_IN_SERIES
                       </label>
-                      <span className={`font-mono text-[9px] font-bold ${isLight ? 'text-purple-700' : 'text-purple-400'}`}>
-                        {spinOffs.length > 0 ? `${spinOffs.length} SPIN-OFF${spinOffs.length > 1 ? 'S' : ''}` : 'NO SPIN-OFFS'}
-                      </span>
+                      <div className="flex items-center gap-2">
+                        {newSpinOff.length > 0 && (
+                          <span className={`font-mono text-[9px] ${
+                            newSpinOff.length > 180 ? 'text-amber-500 font-bold' : isLight ? 'text-zinc-400' : 'text-zinc-600'
+                          }`}>
+                            {newSpinOff.length}/200
+                          </span>
+                        )}
+                        <span className={`font-mono text-[9px] font-bold ${isLight ? 'text-purple-700' : 'text-purple-400'}`}>
+                          {spinOffs.length > 0 ? `${spinOffs.length} SPIN-OFF${spinOffs.length > 1 ? 'S' : ''}` : 'NO SPIN-OFFS'}
+                        </span>
+                      </div>
                     </div>
                     <div className="flex items-center gap-1.5 mb-2">
                       <input
                         type="text"
                         value={newSpinOff}
+                        maxLength={200}
                         onChange={e => setNewSpinOff(e.target.value)}
                         onKeyDown={e => {
                           if (e.key === 'Enter') {
@@ -791,7 +805,7 @@ export default function AddTitleModal({
                             handleAddSpinOff()
                           }
                         }}
-                        placeholder="Add spin-off title..."
+                        placeholder="Add spin-off title (max 200 chars)..."
                         className={`flex-1 font-mono text-xs px-2.5 py-1.5 outline-none border transition-colors h-7 ${
                           isLight
                             ? 'bg-white border-zinc-300 focus:border-zinc-900 text-zinc-900 placeholder:text-zinc-400'
@@ -817,23 +831,23 @@ export default function AddTitleModal({
                         {spinOffs.map((spin, idx) => (
                           <div
                             key={idx}
-                            className={`group inline-flex items-center gap-1 px-2 py-0.5 border text-[10px] font-mono ${
+                            className={`group inline-flex items-center gap-1 px-2 py-0.5 border text-[10px] font-mono break-words max-w-full ${
                               isLight
                                 ? 'bg-purple-50 border-purple-200 text-purple-950'
                                 : 'bg-purple-950/20 border-purple-900/60 text-purple-200'
                             }`}
                           >
                             <span className={isLight ? 'text-purple-600 font-semibold' : 'text-purple-400'}>#{idx + 1}</span>
-                            <span className="truncate max-w-[180px]">{spin}</span>
+                            <span className="break-words">{spin}</span>
                             <button
                               type="button"
                               onClick={() => handleRemoveSpinOff(idx)}
-                              className={`ml-1 hover:text-rose-500 cursor-pointer ${
+                              className={`ml-1 hover:text-rose-500 cursor-pointer shrink-0 ${
                                 isLight ? 'text-zinc-400 hover:text-rose-600' : 'text-zinc-500'
                               }`}
                               title={`Remove "${spin}"`}
                             >
-                              ×
+                              ✕
                             </button>
                           </div>
                         ))}

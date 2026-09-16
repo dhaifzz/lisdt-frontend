@@ -80,6 +80,10 @@ export default function EditAnimeView({
   const handleAddSpinOff = () => {
     const trimmed = newSpinOff.trim()
     if (!trimmed) return
+    if (trimmed.length > 200) {
+      toast.error('ERR: SPINOFF_EXCEEDS_200_CHARACTERS')
+      return
+    }
     if (spinOffs.includes(trimmed)) {
       toast.error('Spin-off already added')
       return
@@ -848,11 +852,20 @@ export default function EditAnimeView({
                     }`}>
                       SPIN_OFFS_IN_SERIES (SIDE STORIES / ALTERNATE SETTINGS)
                     </label>
-                    <span className={`font-mono text-[10px] font-bold ${
-                      isLight ? 'text-purple-700' : 'text-purple-400'
-                    }`}>
-                      {spinOffs.length > 0 ? `${spinOffs.length} SPIN-OFF${spinOffs.length > 1 ? 'S' : ''}` : 'NO SPIN-OFFS'}
-                    </span>
+                    <div className="flex items-center gap-2">
+                      {newSpinOff.length > 0 && (
+                        <span className={`font-mono text-[10px] ${
+                          newSpinOff.length > 180 ? 'text-amber-500 font-bold' : isLight ? 'text-zinc-400' : 'text-zinc-600'
+                        }`}>
+                          {newSpinOff.length}/200
+                        </span>
+                      )}
+                      <span className={`font-mono text-[10px] font-bold ${
+                        isLight ? 'text-purple-700' : 'text-purple-400'
+                      }`}>
+                        {spinOffs.length > 0 ? `${spinOffs.length} SPIN-OFF${spinOffs.length > 1 ? 'S' : ''}` : 'NO SPIN-OFFS'}
+                      </span>
+                    </div>
                   </div>
 
                   {/* Add Input Bar */}
@@ -860,6 +873,7 @@ export default function EditAnimeView({
                     <input
                       type="text"
                       value={newSpinOff}
+                      maxLength={200}
                       onChange={e => setNewSpinOff(e.target.value)}
                       onKeyDown={e => {
                         if (e.key === 'Enter') {
@@ -867,7 +881,7 @@ export default function EditAnimeView({
                           handleAddSpinOff()
                         }
                       }}
-                      placeholder="Add spin-off title (e.g. Fate/Apocrypha)..."
+                      placeholder="Add spin-off title (max 200 chars)..."
                       className={`flex-1 font-mono text-xs px-3 py-2 outline-none border transition-colors h-9 ${
                         isLight
                           ? 'bg-white border-zinc-300 focus:border-zinc-950 text-zinc-950 placeholder:text-zinc-400'
@@ -894,23 +908,23 @@ export default function EditAnimeView({
                       {spinOffs.map((spin, idx) => (
                         <div
                           key={idx}
-                          className={`group inline-flex items-center gap-1.5 px-2.5 py-1 border text-xs font-mono transition-colors ${
+                          className={`group inline-flex items-center gap-1.5 px-2.5 py-1 border text-xs font-mono transition-colors break-words max-w-full ${
                             isLight
                               ? 'bg-purple-50/70 border-purple-200 text-purple-950'
                               : 'bg-purple-950/20 border-purple-900/60 text-purple-200'
                           }`}
                         >
-                          <span className={`text-[10px] ${isLight ? 'text-purple-600' : 'text-purple-400'}`}>#{idx + 1}</span>
-                          <span className="truncate max-w-[220px] sm:max-w-xs">{spin}</span>
+                          <span className={`text-[10px] shrink-0 ${isLight ? 'text-purple-600' : 'text-purple-400'}`}>#{idx + 1}</span>
+                          <span className="break-words">{spin}</span>
                           <button
                             type="button"
                             onClick={() => handleRemoveSpinOff(idx)}
-                            className={`ml-1 text-xs hover:text-rose-500 transition-colors cursor-pointer ${
+                            className={`ml-1 text-xs hover:text-rose-500 transition-colors cursor-pointer shrink-0 ${
                               isLight ? 'text-zinc-400 hover:text-rose-600' : 'text-zinc-500'
                             }`}
                             title={`Remove "${spin}"`}
                           >
-                            ×
+                            ✕
                           </button>
                         </div>
                       ))}
