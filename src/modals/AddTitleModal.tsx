@@ -53,6 +53,15 @@ export default function AddTitleModal({
     return map
   }, [mediaList])
 
+  // Check if title already exists in the user's collection (case-insensitive)
+  const duplicateItem = useMemo(() => {
+    const clean = title.trim().toLowerCase()
+    if (!clean) return null
+    return mediaList.find(item => item.title.trim().toLowerCase() === clean) || null
+  }, [title, mediaList])
+
+  const isDuplicateTitle = Boolean(duplicateItem)
+
   const handleAddSpinOff = () => {
     const trimmed = newSpinOff.trim()
     if (!trimmed) return
@@ -150,6 +159,10 @@ export default function AddTitleModal({
     }
     if (cleanTitle.length > 200) {
       toast.error('ERR: TITLE_EXCEEDS_200_CHARACTERS')
+      return
+    }
+    if (isDuplicateTitle) {
+      toast.error(`ERR: A title named "${cleanTitle}" already exists in your collection`)
       return
     }
 
@@ -366,11 +379,13 @@ export default function AddTitleModal({
               {/* Title */}
               <div>
                 <div className="flex items-center justify-between mb-1">
-                  <label className={`block font-mono text-[9px] tracking-wider ${isLight ? 'text-zinc-600' : 'text-zinc-500'}`}>
+                  <label className={`block font-mono text-[9px] tracking-wider ${
+                    isDuplicateTitle ? 'text-red-500 font-bold' : isLight ? 'text-zinc-600' : 'text-zinc-500'
+                  }`}>
                     {isMovie ? 'MOVIE_TITLE' : 'SERIES_TITLE'} *
                   </label>
                   <span className={`font-mono text-[9px] ${
-                    title.length > 180 ? 'text-amber-500 font-bold' : isLight ? 'text-zinc-400' : 'text-zinc-600'
+                    isDuplicateTitle ? 'text-red-500 font-bold' : title.length > 180 ? 'text-amber-500 font-bold' : isLight ? 'text-zinc-400' : 'text-zinc-600'
                   }`}>
                     {title.length}/200
                   </span>
@@ -383,11 +398,21 @@ export default function AddTitleModal({
                   required
                   placeholder={isMovie ? "e.g. Blade Runner 2049 (max 200 chars)" : "e.g. Steins;Gate (max 200 chars)"}
                   className={`w-full font-medium text-xs sm:text-sm px-3 py-2 outline-none transition-colors border ${
-                    isLight
+                    isDuplicateTitle
+                      ? isLight
+                        ? 'bg-red-50/70 border-red-500 focus:border-red-600 text-red-950 placeholder-red-300'
+                        : 'bg-red-950/20 border-red-500 focus:border-red-400 text-white placeholder-red-800'
+                      : isLight
                       ? 'bg-zinc-50 border-zinc-300 focus:border-zinc-800 text-zinc-900 placeholder-zinc-400'
                       : 'bg-[#080808] border-zinc-800 focus:border-white text-white placeholder-zinc-700'
                   }`}
                 />
+                {isDuplicateTitle && duplicateItem && (
+                  <div className="flex items-center gap-1.5 mt-1.5 font-mono text-[10px] text-red-500 font-medium">
+                    <span>⚠</span>
+                    <span>Title already exists in your library ({duplicateItem.year} • {duplicateItem.category.toUpperCase()})</span>
+                  </div>
+                )}
               </div>
 
               {/* Score Rating — Pick a Number [1 - 10] */}
@@ -1036,10 +1061,13 @@ export default function AddTitleModal({
           <button
             type="submit"
             form="add-title-form"
-            className={`font-mono text-xs font-bold px-4 sm:px-5 py-2.5 transition-colors tracking-wider cursor-pointer shadow-sm text-center ${
-              isLight
-                ? 'bg-zinc-900 hover:bg-black text-white'
-                : 'bg-white hover:bg-zinc-200 text-black'
+            disabled={isDuplicateTitle}
+            className={`font-mono text-xs font-bold px-4 sm:px-5 py-2.5 transition-colors tracking-wider shadow-sm text-center ${
+              isDuplicateTitle
+                ? 'opacity-50 cursor-not-allowed bg-zinc-700 text-zinc-400'
+                : isLight
+                ? 'bg-zinc-900 hover:bg-black text-white cursor-pointer'
+                : 'bg-white hover:bg-zinc-200 text-black cursor-pointer'
             }`}
           >
             + ADD_TO_LIBRARY

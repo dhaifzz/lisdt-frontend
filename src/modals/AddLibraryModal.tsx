@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { LibraryCategory } from '../types'
 import { useTheme } from '../context/ThemeContext'
 import { toast } from '../context/ToastContext'
@@ -11,6 +11,7 @@ interface AddLibraryModalProps {
   libraryToEdit?: LibraryCategory | null
   mode?: 'all' | 'hero' | 'card'
   isOnlyLibrary?: boolean
+  existingLibraries?: LibraryCategory[]
   isLight?: boolean
 }
 
@@ -22,6 +23,7 @@ export default function AddLibraryModal({
   libraryToEdit,
   mode = 'all',
   isOnlyLibrary = false,
+  existingLibraries = [],
   isLight: propIsLight,
 }: AddLibraryModalProps) {
   const { theme } = useTheme()
@@ -40,6 +42,15 @@ export default function AddLibraryModal({
   const [type, setType] = useState<'series' | 'movies'>('series')
   const [unitLabel, setUnitLabel] = useState('')
   const [hasManuallyEdited, setHasManuallyEdited] = useState(false)
+
+  // Check if library label already exists (case-insensitive)
+  const isDuplicateLabel = useMemo(() => {
+    const clean = label.trim().toUpperCase()
+    if (!clean) return false
+    return existingLibraries.some(
+      c => c.id !== libraryToEdit?.id && c.label.trim().toUpperCase() === clean
+    )
+  }, [label, existingLibraries, libraryToEdit])
 
   // Initialize or reset form when modal opens
   useEffect(() => {
@@ -122,6 +133,11 @@ export default function AddLibraryModal({
       return
     }
 
+    if (isDuplicateLabel) {
+      toast.error(`ERR: A library named "${finalLabel}" already exists`)
+      return
+    }
+
     const finalTag = (tag.trim() || libraryToEdit?.tag || finalLabel).toUpperCase().replace(/[^A-Z0-9]/g, '_')
     if (finalTag.length > 20) {
       toast.error('ERR: TAG_EXCEEDS_20_CHARS')
@@ -170,10 +186,14 @@ export default function AddLibraryModal({
       {/* Field: Library Title */}
       <div>
         <div className="flex items-center justify-between mb-1.5">
-          <label className={`block font-mono text-[9px] tracking-wider ${isLight ? 'text-zinc-600' : 'text-zinc-500'}`}>
+          <label className={`block font-mono text-[9px] tracking-wider ${
+            isDuplicateLabel ? 'text-red-500 font-bold' : isLight ? 'text-zinc-600' : 'text-zinc-500'
+          }`}>
             LIBRARY_TITLE / NAME *
           </label>
-          <span className={`font-mono text-[9px] ${label.length > 25 ? 'text-amber-500 font-bold' : isLight ? 'text-zinc-500' : 'text-zinc-600'}`}>
+          <span className={`font-mono text-[9px] ${
+            isDuplicateLabel ? 'text-red-500 font-bold' : label.length > 25 ? 'text-amber-500 font-bold' : isLight ? 'text-zinc-500' : 'text-zinc-600'
+          }`}>
             {label.length}/30
           </span>
         </div>
@@ -185,14 +205,24 @@ export default function AddLibraryModal({
           maxLength={30}
           placeholder="e.g. Manga, K-Drama, Video Games (2-30 chars)"
           className={`w-full font-medium text-sm px-3.5 py-2.5 outline-none transition-colors border ${
-            isLight
+            isDuplicateLabel
+              ? isLight
+                ? 'bg-red-50/70 border-red-500 focus:border-red-600 text-red-950 placeholder-red-300'
+                : 'bg-red-950/20 border-red-500 focus:border-red-400 text-white placeholder-red-800'
+              : isLight
               ? 'bg-zinc-50 border-zinc-300 focus:border-zinc-800 text-zinc-900 placeholder-zinc-400'
               : 'bg-[#080808] border-zinc-800 focus:border-white text-white placeholder-zinc-600'
           }`}
         />
-        <span className={`font-mono text-[9px] mt-1 block ${isLight ? 'text-zinc-500' : 'text-zinc-600'}`}>
-          This appears on your Library Channel cards in the directory.
-        </span>
+        {isDuplicateLabel ? (
+          <span className="font-mono text-[9px] mt-1 block text-red-500 font-medium">
+            ⚠ A library with this title already exists.
+          </span>
+        ) : (
+          <span className={`font-mono text-[9px] mt-1 block ${isLight ? 'text-zinc-500' : 'text-zinc-600'}`}>
+            This appears on your Library Channel cards in the directory.
+          </span>
+        )}
       </div>
 
       {/* Field: Classification Format (Series vs Movies) */}
@@ -531,10 +561,13 @@ export default function AddLibraryModal({
             <button
               type="submit"
               form="add-library-form"
-              className={`flex-1 sm:flex-initial text-center font-mono text-xs font-bold px-4 sm:px-5 py-2.5 transition-colors tracking-wider cursor-pointer shadow-sm whitespace-nowrap ${
-                isLight
-                  ? 'bg-zinc-900 hover:bg-black text-white'
-                  : 'bg-white hover:bg-zinc-200 text-black'
+              disabled={isDuplicateLabel}
+              className={`flex-1 sm:flex-initial text-center font-mono text-xs font-bold px-4 sm:px-5 py-2.5 transition-colors tracking-wider shadow-sm whitespace-nowrap ${
+                isDuplicateLabel
+                  ? 'opacity-50 cursor-not-allowed bg-zinc-700 text-zinc-400'
+                  : isLight
+                  ? 'bg-zinc-900 hover:bg-black text-white cursor-pointer'
+                  : 'bg-white hover:bg-zinc-200 text-black cursor-pointer'
               }`}
             >
               {isEditing ? 'SAVE_CHANGES' : '+ CREATE_LIBRARY'}

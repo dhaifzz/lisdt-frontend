@@ -107,6 +107,15 @@ export default function EditAnimeView({
     return map
   }, [mediaList, anime.id])
 
+  // Check if title already exists on another item in the collection (case-insensitive)
+  const duplicateItem = useMemo(() => {
+    const clean = title.trim().toLowerCase()
+    if (!clean) return null
+    return mediaList.find(item => item.id !== anime.id && item.title.trim().toLowerCase() === clean) || null
+  }, [title, mediaList, anime.id])
+
+  const isDuplicateTitle = Boolean(duplicateItem)
+
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
@@ -154,6 +163,10 @@ export default function EditAnimeView({
     }
     if (cleanTitle.length > 200) {
       toast.error('ERR: TITLE_EXCEEDS_200_CHARACTERS')
+      return
+    }
+    if (isDuplicateTitle) {
+      toast.error(`ERR: A title named "${cleanTitle}" already exists in your collection`)
       return
     }
 
@@ -377,12 +390,12 @@ export default function EditAnimeView({
             <div>
               <div className="flex items-center justify-between mb-2">
                 <label className={`block font-mono text-[10px] tracking-wider ${
-                  isLight ? 'text-zinc-600 font-medium' : 'text-zinc-500'
+                  isDuplicateTitle ? 'text-red-500 font-bold' : isLight ? 'text-zinc-600 font-medium' : 'text-zinc-500'
                 }`}>
                   TITLE *
                 </label>
                 <span className={`font-mono text-[10px] ${
-                  title.length > 180 ? 'text-amber-500 font-bold' : isLight ? 'text-zinc-400' : 'text-zinc-600'
+                  isDuplicateTitle ? 'text-red-500 font-bold' : title.length > 180 ? 'text-amber-500 font-bold' : isLight ? 'text-zinc-400' : 'text-zinc-600'
                 }`}>
                   {title.length}/200
                 </span>
@@ -394,12 +407,22 @@ export default function EditAnimeView({
                 maxLength={200}
                 required
                 className={`w-full font-medium text-sm px-3.5 py-2.5 outline-none transition-colors border ${
-                  isLight
+                  isDuplicateTitle
+                    ? isLight
+                      ? 'bg-red-50/70 border-red-500 focus:border-red-600 text-red-950 placeholder-red-300'
+                      : 'bg-red-950/20 border-red-500 focus:border-red-400 text-white placeholder-red-800'
+                    : isLight
                     ? 'bg-zinc-50 border-zinc-300 focus:border-zinc-950 text-zinc-950 placeholder:text-zinc-400'
                     : 'bg-[#080808] border-zinc-800 focus:border-white text-white'
                 }`}
                 placeholder="Enter title (max 200 chars)..."
               />
+              {isDuplicateTitle && duplicateItem && (
+                <div className="flex items-center gap-1.5 mt-1.5 font-mono text-xs text-red-500 font-medium">
+                  <span>⚠</span>
+                  <span>Title already exists in your library ({duplicateItem.year} • {duplicateItem.category.toUpperCase()})</span>
+                </div>
+              )}
             </div>
 
             {/* Field: Score Rating — Pick a Number [1 - 10] */}
@@ -1133,10 +1156,13 @@ export default function EditAnimeView({
                 </button>
                 <button
                   type="submit"
-                  className={`flex-1 sm:flex-initial text-center font-mono text-xs font-bold px-6 py-2.5 transition-colors tracking-wider cursor-pointer whitespace-nowrap ${
-                    isLight
-                      ? 'bg-zinc-950 hover:bg-zinc-800 text-white shadow-xs'
-                      : 'bg-white hover:bg-zinc-200 text-black'
+                  disabled={isDuplicateTitle}
+                  className={`flex-1 sm:flex-initial text-center font-mono text-xs font-bold px-6 py-2.5 transition-colors tracking-wider whitespace-nowrap ${
+                    isDuplicateTitle
+                      ? 'opacity-50 cursor-not-allowed bg-zinc-700 text-zinc-400'
+                      : isLight
+                      ? 'bg-zinc-950 hover:bg-zinc-800 text-white shadow-xs cursor-pointer'
+                      : 'bg-white hover:bg-zinc-200 text-black cursor-pointer'
                   }`}
                 >
                   SAVE_CHANGES

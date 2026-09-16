@@ -373,6 +373,14 @@ export default function App() {
   }
 
   const handleSaveAnime = async (updated: Anime) => {
+    const isDuplicate = mediaList.some(
+      a => a.id !== updated.id && a.title.trim().toLowerCase() === updated.title.trim().toLowerCase()
+    )
+    if (isDuplicate) {
+      toast.error(`ERR: A title named "${updated.title}" already exists in your collection`)
+      return
+    }
+
     try {
       const res = await mediaApi.update(updated.id, {
         category: updated.category,
@@ -406,13 +414,21 @@ export default function App() {
       } else {
         toast.success('CHANGES_SAVED_SUCCESSFULLY')
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Failed to save media item:', err)
-      toast.error('FAILED_TO_SAVE_MEDIA_ITEM')
+      toast.error(err?.message || 'FAILED_TO_SAVE_MEDIA_ITEM')
     }
   }
 
   const handleAddTitle = async (newItem: Anime) => {
+    const isDuplicate = mediaList.some(
+      a => a.title.trim().toLowerCase() === newItem.title.trim().toLowerCase()
+    )
+    if (isDuplicate) {
+      toast.error(`ERR: A title named "${newItem.title}" already exists in your collection`)
+      return
+    }
+
     try {
       const res = await mediaApi.create({
         category: newItem.category,
@@ -450,9 +466,9 @@ export default function App() {
         toast.info(`Rank #${mapped.topRank} transferred from "${previousHolder.title}" to "${mapped.title}"`)
       }
       toast.success(`ADDED: "${mapped.title}"`)
-    } catch (err) {
+    } catch (err: any) {
       console.error('Failed to add media item:', err)
-      toast.error('FAILED_TO_ADD_MEDIA_ITEM')
+      toast.error(err?.message || 'FAILED_TO_ADD_MEDIA_ITEM')
     }
   }
 
@@ -469,6 +485,14 @@ export default function App() {
   }
 
   const handleSaveLibrary = async (saved: LibraryCategory) => {
+    const isDuplicate = categories.some(
+      c => c.id !== saved.id && c.label.trim().toUpperCase() === saved.label.trim().toUpperCase()
+    )
+    if (isDuplicate) {
+      toast.error(`ERR: A library named "${saved.label}" already exists`)
+      return
+    }
+
     try {
       // Find the matching API category by slug
       const existing = categories.find(c => c.id === saved.id)
@@ -507,9 +531,9 @@ export default function App() {
       setFilter('all')
       setSearch('')
       toast.success(`LIBRARY_VAULT_SAVED: ${saved.label}`)
-    } catch (err) {
+    } catch (err: any) {
       console.error('Failed to save library:', err)
-      toast.error('FAILED_TO_SAVE_LIBRARY')
+      toast.error(err?.message || 'FAILED_TO_SAVE_LIBRARY')
     }
   }
 
@@ -848,6 +872,7 @@ export default function App() {
         onSave={handleSaveLibrary}
         onDelete={handleDeleteLibrary}
         libraryToEdit={libraryToEdit}
+        existingLibraries={categories}
         isOnlyLibrary={categories.length <= 1}
         isLight={isLight}
       />
