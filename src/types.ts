@@ -24,6 +24,7 @@ export interface Anime {
   seasonsFinished: number
   parts?: number        // for movies (number of parts, e.g. 1, 2)
   moviesCount?: number  // for series (count of companion movies in the series)
+  spinOffs?: string[]   // for series (list of companion spin-off titles)
   topRank?: number | null // personal top favorites rank 1-10
 }
 

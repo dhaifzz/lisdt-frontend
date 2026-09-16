@@ -231,8 +231,8 @@ export function MediaCard({
               </span>
             </div>
           ) : (
-            (anime.seasonsFinished > 0 || (anime.moviesCount ?? 0) > 0) && (
-              <div className="flex items-center gap-1.5">
+            (anime.seasonsFinished > 0 || (anime.moviesCount ?? 0) > 0 || (anime.spinOffs?.length ?? 0) > 0) && (
+              <div className="flex items-center gap-1.5 flex-wrap">
                 {anime.seasonsFinished > 0 && (
                   <span className={`font-semibold ${isLight ? 'text-zinc-700' : 'text-zinc-300'}`}>
                     S{anime.seasonsFinished}
@@ -244,6 +244,17 @@ export function MediaCard({
                 {(anime.moviesCount ?? 0) > 0 && (
                   <span className="text-amber-500 font-bold whitespace-nowrap">
                     +{anime.moviesCount} {anime.moviesCount === 1 ? 'Movie' : 'Movies'}
+                  </span>
+                )}
+                {((anime.seasonsFinished > 0 && (anime.moviesCount ?? 0) === 0) || (anime.moviesCount ?? 0) > 0) && (anime.spinOffs?.length ?? 0) > 0 && (
+                  <span className={`select-none ${isLight ? 'text-zinc-300' : 'text-zinc-800'}`}>·</span>
+                )}
+                {(anime.spinOffs?.length ?? 0) > 0 && (
+                  <span
+                    className={`${isLight ? 'text-purple-700' : 'text-purple-400'} font-bold whitespace-nowrap`}
+                    title={`Spin-offs: ${anime.spinOffs?.join(', ')}`}
+                  >
+                    +{anime.spinOffs!.length} {anime.spinOffs!.length === 1 ? 'Spin-off' : 'Spin-offs'}
                   </span>
                 )}
               </div>

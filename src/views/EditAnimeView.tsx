@@ -68,12 +68,29 @@ export default function EditAnimeView({
   const [seasonsFinished, setSeasonsFinished] = useState<number | string>(anime.seasonsFinished ?? (anime.category === 'movies' ? 0 : 1))
   const [parts, setParts] = useState(anime.parts ?? 1)
   const [moviesCount, setMoviesCount] = useState(anime.moviesCount ?? 0)
+  const [spinOffs, setSpinOffs] = useState<string[]>(anime.spinOffs ?? [])
+  const [newSpinOff, setNewSpinOff] = useState('')
   const [year, setYear] = useState(anime.year)
   const [status, setStatus] = useState<Anime['status']>(anime.status)
   const [rating, setRating] = useState(anime.rating !== null ? Math.round(anime.rating).toString() : '')
   const [topRank, setTopRank] = useState<number | null>(anime.topRank ?? null)
   const [coverErr, setCoverErr] = useState(false)
   const [isUploadingCover, setIsUploadingCover] = useState(false)
+
+  const handleAddSpinOff = () => {
+    const trimmed = newSpinOff.trim()
+    if (!trimmed) return
+    if (spinOffs.includes(trimmed)) {
+      toast.error('Spin-off already added')
+      return
+    }
+    setSpinOffs(prev => [...prev, trimmed])
+    setNewSpinOff('')
+  }
+
+  const handleRemoveSpinOff = (indexToRemove: number) => {
+    setSpinOffs(prev => prev.filter((_, idx) => idx !== indexToRemove))
+  }
 
   // Map of rank number -> other title currently occupying that rank
   const occupiedRanks = useMemo(() => {
@@ -146,6 +163,7 @@ export default function EditAnimeView({
       seasonsFinished: isMovie ? 0 : Math.max(0, Math.round((parseFloat(String(seasonsFinished)) || 0) * 10) / 10),
       parts: isMovie ? Math.max(1, Number(parts) || 1) : undefined,
       moviesCount: !isMovie ? Math.max(0, Number(moviesCount) || 0) : undefined,
+      spinOffs: !isMovie ? spinOffs : [],
       year: Number(year) || anime.year,
       status,
       rating: parsedRating !== null ? Math.round(parsedRating) : null,
@@ -241,6 +259,7 @@ export default function EditAnimeView({
               {isMovie && ` · ${parts} ${parts === 1 ? 'Part' : 'Parts'}`}
               {!isMovie && Number(seasonsFinished) > 0 && ` · ${Number(seasonsFinished)} ${Number(seasonsFinished) === 1 ? 'Season' : 'Seasons'}`}
               {!isMovie && moviesCount > 0 && ` · +${moviesCount} ${moviesCount === 1 ? 'Movie' : 'Movies'}`}
+              {!isMovie && spinOffs.length > 0 && ` · +${spinOffs.length} ${spinOffs.length === 1 ? 'Spin-off' : 'Spin-offs'}`}
             </p>
           </div>
         </div>
@@ -817,6 +836,90 @@ export default function EditAnimeView({
                         : `Includes ${moviesCount} companion film${moviesCount > 1 ? 's' : ''}`}
                     </span>
                   </div>
+                </div>
+
+                {/* Companion Spin-offs in this Series */}
+                <div className={`p-3.5 border transition-colors ${
+                  isLight ? 'bg-zinc-50 border-zinc-200' : 'bg-zinc-950/70 border-zinc-800'
+                }`}>
+                  <div className="flex items-center justify-between mb-2">
+                    <label className={`block font-mono text-[10px] tracking-wider ${
+                      isLight ? 'text-zinc-600' : 'text-zinc-400'
+                    }`}>
+                      SPIN_OFFS_IN_SERIES (SIDE STORIES / ALTERNATE SETTINGS)
+                    </label>
+                    <span className={`font-mono text-[10px] font-bold ${
+                      isLight ? 'text-purple-700' : 'text-purple-400'
+                    }`}>
+                      {spinOffs.length > 0 ? `${spinOffs.length} SPIN-OFF${spinOffs.length > 1 ? 'S' : ''}` : 'NO SPIN-OFFS'}
+                    </span>
+                  </div>
+
+                  {/* Add Input Bar */}
+                  <div className="flex items-center gap-2 mb-2.5">
+                    <input
+                      type="text"
+                      value={newSpinOff}
+                      onChange={e => setNewSpinOff(e.target.value)}
+                      onKeyDown={e => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault()
+                          handleAddSpinOff()
+                        }
+                      }}
+                      placeholder="Add spin-off title (e.g. Fate/Apocrypha)..."
+                      className={`flex-1 font-mono text-xs px-3 py-2 outline-none border transition-colors h-9 ${
+                        isLight
+                          ? 'bg-white border-zinc-300 focus:border-zinc-950 text-zinc-950 placeholder:text-zinc-400'
+                          : 'bg-[#080808] border-zinc-800 focus:border-purple-400 text-white placeholder:text-zinc-600'
+                      }`}
+                    />
+                    <button
+                      type="button"
+                      onClick={handleAddSpinOff}
+                      className={`h-9 px-3.5 font-mono text-xs font-bold border transition-all cursor-pointer flex items-center gap-1 shrink-0 ${
+                        isLight
+                          ? 'bg-zinc-900 border-zinc-900 text-white hover:bg-black'
+                          : 'bg-purple-950/40 border-purple-800/80 text-purple-300 hover:bg-purple-900/60 hover:text-white hover:border-purple-600'
+                      }`}
+                    >
+                      <span>+</span>
+                      <span>ADD</span>
+                    </button>
+                  </div>
+
+                  {/* Spin-off Chips List */}
+                  {spinOffs.length > 0 ? (
+                    <div className="flex flex-wrap gap-1.5 pt-1">
+                      {spinOffs.map((spin, idx) => (
+                        <div
+                          key={idx}
+                          className={`group inline-flex items-center gap-1.5 px-2.5 py-1 border text-xs font-mono transition-colors ${
+                            isLight
+                              ? 'bg-purple-50/70 border-purple-200 text-purple-950'
+                              : 'bg-purple-950/20 border-purple-900/60 text-purple-200'
+                          }`}
+                        >
+                          <span className={`text-[10px] ${isLight ? 'text-purple-600' : 'text-purple-400'}`}>#{idx + 1}</span>
+                          <span className="truncate max-w-[220px] sm:max-w-xs">{spin}</span>
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveSpinOff(idx)}
+                            className={`ml-1 text-xs hover:text-rose-500 transition-colors cursor-pointer ${
+                              isLight ? 'text-zinc-400 hover:text-rose-600' : 'text-zinc-500'
+                            }`}
+                            title={`Remove "${spin}"`}
+                          >
+                            ×
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className={`font-mono text-[10px] ${isLight ? 'text-zinc-500' : 'text-zinc-500'}`}>
+                      Type a spin-off or side story title and press Enter or click + ADD
+                    </p>
+                  )}
                 </div>
               </div>
             )}

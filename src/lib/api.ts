@@ -190,6 +190,7 @@ export interface ApiMediaItem {
   seasonsFinished: number
   parts?: number | null
   moviesCount?: number | null
+  spinOffs?: string[] | null
   notes?: string | null
   topRank?: number | null
   userId: number

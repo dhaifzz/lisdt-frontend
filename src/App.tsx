@@ -228,6 +228,7 @@ export default function App() {
     seasonsFinished: m.seasonsFinished,
     parts: m.parts ?? undefined,
     moviesCount: m.moviesCount ?? undefined,
+    spinOffs: m.spinOffs ?? undefined,
     topRank: m.topRank ?? undefined,
   })
 
@@ -384,6 +385,7 @@ export default function App() {
         seasonsFinished: updated.seasonsFinished,
         parts: updated.parts,
         moviesCount: updated.moviesCount,
+        spinOffs: updated.spinOffs ?? [],
         topRank: updated.topRank ?? null,
       })
       const mapped = mapMedia(res.item)
@@ -423,6 +425,7 @@ export default function App() {
         seasonsFinished: newItem.seasonsFinished,
         parts: newItem.parts,
         moviesCount: newItem.moviesCount,
+        spinOffs: newItem.spinOffs ?? [],
         topRank: newItem.topRank ?? null,
       })
       const mapped = mapMedia(res.item)
