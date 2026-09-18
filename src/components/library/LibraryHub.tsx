@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { Anime, MediaCategory, LibraryCategory } from '../../types'
 
 interface LibraryHubProps {
@@ -48,6 +49,27 @@ export function LibraryHub({
   isLoading = false,
   isLight = false,
 }: LibraryHubProps) {
+  // Order library cards based on the amount of titles: from most to least
+  const { sortedCategories, itemCounts } = useMemo(() => {
+    const counts = new Map<string, number>()
+    for (const item of items) {
+      if (item.category) {
+        counts.set(item.category, (counts.get(item.category) || 0) + 1)
+      }
+    }
+
+    const sorted = [...categories].sort((a, b) => {
+      const countA = counts.get(a.id) || 0
+      const countB = counts.get(b.id) || 0
+      if (countB !== countA) {
+        return countB - countA // Descending: most titles first, then least
+      }
+      return a.label.localeCompare(b.label)
+    })
+
+    return { sortedCategories: sorted, itemCounts: counts }
+  }, [categories, items])
+
   return (
     <div className="mb-6">
       {/* Header directory bar: clean flex without overflow */}
@@ -91,7 +113,7 @@ export function LibraryHub({
             <LibraryCardSkeleton index={1} isLight={isLight} />
             <LibraryCardSkeleton index={2} isLight={isLight} />
           </>
-        ) : categories.length === 0 ? (
+        ) : sortedCategories.length === 0 ? (
           <div className={`col-span-3 border border-dashed p-6 text-center ${
             isLight ? 'border-zinc-300 bg-white/60' : 'border-zinc-900 bg-zinc-950/30'
           }`}>
@@ -109,9 +131,9 @@ export function LibraryHub({
             </button>
           </div>
         ) : (
-          categories.map((cat) => {
+          sortedCategories.map((cat) => {
             const isActive = activeCategory === cat.id
-            const catItems = items.filter(a => a.category === cat.id)
+            const count = itemCounts.get(cat.id) || 0
 
             return (
               <button
@@ -176,7 +198,7 @@ export function LibraryHub({
                     <p className={`font-mono text-[9px] sm:text-[10px] whitespace-nowrap ${
                       isLight ? 'text-zinc-500' : 'text-zinc-500'
                     }`}>
-                      {catItems.length} {catItems.length === 1 ? 'TITLE' : 'TITLES'}
+                      {count} {count === 1 ? 'TITLE' : 'TITLES'}
                     </p>
 
                     {onEditLibrary && (
